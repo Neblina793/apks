@@ -3,11 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RPG Manager 5e - Completo com Imagem</title>
+    <title>RPG Manager 5e - Versão Final Ilimitada</title>
     <style>
         /* TEMA DARK NEON */
         body { font-family: 'Segoe UI', sans-serif; background-color: #0d0216; color: #e0e0e0; padding: 20px; margin: 0; display: flex; flex-direction: column; align-items: center; }
-        .header-logo img { max-width: 150px; filter: drop-shadow(0 0 5px #bc13fe); margin-bottom: 20px; }
         h1 { color: #bc13fe; text-transform: uppercase; text-shadow: 0 0 10px #bc13fe; margin-bottom: 25px; }
         .container { width: 100%; max-width: 550px; display: flex; flex-direction: column; gap: 12px; }
         
@@ -26,7 +25,7 @@
         #modal-ficha, #modal-seletor, #modal-seletor-talento, #modal-seletor-habilidade { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 2000; overflow-y: auto; padding: 10px; }
         .modal-content { background: #120b1a; border: 2px solid #bc13fe; max-width: 500px; margin: 40px auto; padding: 25px; border-radius: 12px; box-shadow: 0 0 30px #bc13fe; }
         
-        /* FICHA D&D 5E (ESTILO PAPEL) */
+        /* FICHA D&D 5E */
         .dnd-sheet { background: #fff; color: #000; max-width: 700px; margin: auto; padding: 25px; border-radius: 5px; }
         .dnd-header { border-bottom: 2px solid #000; padding-bottom: 10px; margin-bottom: 15px; display: grid; grid-template-columns: 100px 1fr 1fr; gap: 15px; align-items: center; }
         .char-img-ficha { width: 80px; height: 80px; border: 2px solid #000; border-radius: 4px; object-fit: cover; background: #eee; }
@@ -57,8 +56,8 @@
             <input type="hidden" id="char-img-base64" value="">
             
             <div class="form-group">
-                <label>Imagem do Personagem (JPG, PNG, GIF)</label>
-                <input type="file" id="char-img-input" accept="image/png, image/jpeg, image/jpg, image/gif" onchange="converterImagem()">
+                <label>Imagem do Personagem (Será otimizada para economizar espaço)</label>
+                <input type="file" id="char-img-input" accept="image/*" onchange="converterImagem()">
             </div>
 
             <div class="grid-campos">
@@ -67,15 +66,17 @@
             </div>
             <div class="grid-campos">
                 <div class="form-group"><label>Nível</label><input type="number" id="char-nivel" value="1"></div>
+                <div class="form-group"><label>XP Atual</label><input type="number" id="char-xp" value="0"></div>
                 <div class="form-group"><label>PV Máx</label><input type="number" id="char-pv"></div>
-                <div class="form-group"><label>CA</label><input type="number" id="char-ca"></div>
-                <div class="form-group"><label>AC (Acerto)</label><input type="text" id="char-ac" placeholder="+5"></div>
             </div>
             <div class="grid-campos">
-                <div class="form-group"><label>Arma</label><input type="text" id="char-arma"></div>
-                <div class="form-group"><label>Armadura</label><input type="text" id="char-armadura"></div>
+                <div class="form-group"><label>CA</label><input type="number" id="char-ca"></div>
+                <div class="form-group"><label>AC (Bônus Acerto)</label><input type="text" id="char-ac" placeholder="+5"></div>
+                <div class="form-group"><label>Arma Principal</label><input type="text" id="char-arma"></div>
             </div>
+            <div class="form-group"><label>Armadura / Defesa</label><input type="text" id="char-armadura"></div>
             <div class="form-group"><label>Inventário</label><textarea id="char-inventario" rows="3"></textarea></div>
+
             <label>Atributos</label>
             <div class="grid-campos">
                 <div class="form-group"><label>FOR</label><input type="number" id="for" value="10"></div>
@@ -102,297 +103,254 @@
         <button class="btn-expande" onclick="toggle('criar-talento')">✚ CRIAR NOVO TALENTO</button>
         <div id="criar-talento" class="conteudo">
             <div class="form-group"><label>Nome do Talento</label><input type="text" id="tal-nome"></div>
-            <div class="form-group"><label>Requisito (opcional)</label><input type="text" id="tal-req" placeholder="Ex: Força 13+"></div>
-            <div class="form-group"><label>Descrição do Talento</label><textarea id="tal-desc" rows="3"></textarea></div>
+            <div class="form-group"><label>Requisito</label><input type="text" id="tal-req"></div>
+            <div class="form-group"><label>Descrição</label><textarea id="tal-desc" rows="3"></textarea></div>
             <button class="btn-salvar" onclick="salvarTalento()">💾 Salvar Talentos</button>
         </div>
 
         <button class="btn-expande" onclick="toggle('criar-habilidade')">✚ CRIAR NOVA HABILIDADE</button>
         <div id="criar-habilidade" class="conteudo">
             <div class="form-group"><label>Nome da Habilidade</label><input type="text" id="hab-nome"></div>
-            <div class="form-group"><label>Tipo/Origem</label><input type="text" id="hab-tipo" placeholder="Ex: Classe, Raça, Item"></div>
-            <div class="form-group"><label>Descrição da Habilidade</label><textarea id="hab-desc" rows="3"></textarea></div>
+            <div class="form-group"><label>Tipo</label><input type="text" id="hab-tipo"></div>
+            <div class="form-group"><label>Descrição</label><textarea id="hab-desc" rows="3"></textarea></div>
             <button class="btn-salvar" onclick="salvarHabilidade()">💾 Salvar Habilidades</button>
         </div>
 
         <hr style="width:100%; border:0.5px solid #bc13fe; margin:15px 0;">
 
-        <button class="btn-expande" onclick="toggle('lista-pers')">📋 LISTA DE PERSONAGENS</button>
+        <button class="btn-expande" onclick="toggle('lista-pers')">📋 MEUS PERSONAGENS</button>
         <div id="lista-pers" class="conteudo"><div id="container-lista-pers"></div></div>
 
         <button class="btn-expande" onclick="toggle('lista-magias')">📖 GRIMÓRIO (MAGIAS)</button>
         <div id="lista-magias" class="conteudo"><div id="container-lista-magias"></div></div>
 
-        <button class="btn-expande" onclick="toggle('lista-talentos')">📜 TALENTOS (BIBLIOTECA)</button>
+        <button class="btn-expande" onclick="toggle('lista-talentos')">📜 TALENTOS</button>
         <div id="lista-talentos" class="conteudo"><div id="container-lista-talentos"></div></div>
 
-        <button class="btn-expande" onclick="toggle('lista-habilidades')">⚔️ HABILIDADES (LISTA)</button>
+        <button class="btn-expande" onclick="toggle('lista-habilidades')">⚔️ HABILIDADES</button>
         <div id="lista-habilidades" class="conteudo"><div id="container-lista-habilidades"></div></div>
     </div>
 
-    <div id="modal-seletor"><div class="modal-content"><h3 style="color:#bc13fe; text-align:center;">Vincular Magia a:</h3><div id="lista-opcoes-pers"></div><button class="btn-fechar" onclick="fecharModal('modal-seletor')">CANCELAR</button></div></div>
-    
-    <div id="modal-seletor-talento"><div class="modal-content"><h3 style="color:#bc13fe; text-align:center;">Vincular Talento a:</h3><div id="lista-opcoes-pers-talento"></div><button class="btn-fechar" onclick="fecharModal('modal-seletor-talento')">CANCELAR</button></div></div>
-
-    <div id="modal-seletor-habilidade"><div class="modal-content"><h3 style="color:#bc13fe; text-align:center;">Vincular Habilidade a:</h3><div id="lista-opcoes-pers-habilidade"></div><button class="btn-fechar" onclick="fecharModal('modal-seletor-habilidade')">CANCELAR</button></div></div>
+    <div id="modal-seletor"><div class="modal-content"><h3>Vincular Magia a:</h3><div id="lista-opcoes-pers"></div><button class="btn-fechar" onclick="fecharModal('modal-seletor')">FECHAR</button></div></div>
+    <div id="modal-seletor-talento"><div class="modal-content"><h3>Vincular Talento a:</h3><div id="lista-opcoes-pers-talento"></div><button class="btn-fechar" onclick="fecharModal('modal-seletor-talento')">FECHAR</button></div></div>
+    <div id="modal-seletor-habilidade"><div class="modal-content"><h3>Vincular Habilidade a:</h3><div id="lista-opcoes-pers-habilidade"></div><button class="btn-fechar" onclick="fecharModal('modal-seletor-habilidade')">FECHAR</button></div></div>
 
     <div id="modal-ficha"><div class="dnd-sheet">
-        <button class="btn-edit-ficha" id="btn-edit-na-ficha">✎ EDITAR FICHA</button>
+        <button class="btn-edit-ficha" id="btn-edit-na-ficha">✎ EDITAR</button>
         <div id="conteudo-ficha-detalhada"></div>
-        <button class="btn-fechar" style="background:#000" onclick="fecharModal('modal-ficha')">FECHAR</button>
+        <button class="btn-fechar" style="background:#000" onclick="fecharModal('modal-ficha')">VOLTAR</button>
     </div></div>
 
     <script>
-        // Inicialização de dados
-        let personagens = JSON.parse(localStorage.getItem('rpg_v5_data')) || [];
-        let magias = JSON.parse(localStorage.getItem('rpg_v5_mags')) || [];
-        let talentos = JSON.parse(localStorage.getItem('rpg_v5_talentos')) || [];
-        let habilidades = JSON.parse(localStorage.getItem('rpg_v5_habs')) || [];
+    // Carregamento de Dados
+    let personagens = JSON.parse(localStorage.getItem('rpg_v6_total')) || [];
+    let magias = JSON.parse(localStorage.getItem('rpg_v6_mags')) || [];
+    let talentos = JSON.parse(localStorage.getItem('rpg_v6_talentos')) || [];
+    let habilidades = JSON.parse(localStorage.getItem('rpg_v6_habs')) || [];
 
-        function toggle(id) {
-            const div = document.getElementById(id);
-            const status = div.style.display;
-            document.querySelectorAll('.conteudo').forEach(d => d.style.display = 'none');
-            div.style.display = status === "block" ? "none" : "block";
-        }
+    function toggle(id) {
+        const div = document.getElementById(id);
+        const status = div.style.display;
+        document.querySelectorAll('.conteudo').forEach(d => d.style.display = 'none');
+        div.style.display = status === "block" ? "none" : "block";
+    }
 
-        function fecharModal(id) { document.getElementById(id).style.display = 'none'; }
+    function fecharModal(id) { document.getElementById(id).style.display = 'none'; }
 
-        function getMod(val) {
-            let m = Math.floor((val - 10) / 2);
-            return (m >= 0 ? "+" : "") + m;
-        }
+    function getMod(val) {
+        let m = Math.floor((val - 10) / 2);
+        return (m >= 0 ? "+" : "") + m;
+    }
 
-        // --- LÓGICA DE IMAGEM ---
-        function converterImagem() {
-            const arquivo = document.getElementById('char-img-input').files[0];
-            const leitor = new FileReader();
-            leitor.onloadend = function() {
-                document.getElementById('char-img-base64').value = leitor.result;
+    function converterImagem() {
+        const file = document.getElementById('char-img-input').files[0];
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const img = new Image();
+            img.src = e.target.result;
+            img.onload = function() {
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+                canvas.width = 200; 
+                canvas.height = 200;
+                ctx.drawImage(img, 0, 0, 200, 200);
+                document.getElementById('char-img-base64').value = canvas.toDataURL('image/jpeg', 0.7);
             }
-            if (arquivo) leitor.readAsDataURL(arquivo);
         }
+        if(file) reader.readAsDataURL(file);
+    }
 
-        // --- LÓGICA PERSONAGEM ---
-        function salvarPersonagem() {
-            const idx = document.getElementById('edit-index').value;
-            const p = {
-                nome: document.getElementById('char-nome').value,
-                classe: document.getElementById('char-classe').value,
-                nivel: document.getElementById('char-nivel').value,
-                pv: document.getElementById('char-pv').value,
-                ca: document.getElementById('char-ca').value,
-                ac: document.getElementById('char-ac').value,
-                arma: document.getElementById('char-arma').value,
-                armadura: document.getElementById('char-armadura').value,
-                inventario: document.getElementById('char-inventario').value,
-                imagem: document.getElementById('char-img-base64').value,
-                for: document.getElementById('for').value, des: document.getElementById('des').value,
-                con: document.getElementById('con').value, int: document.getElementById('int').value,
-                sab: document.getElementById('sab').value, car: document.getElementById('car').value,
-                grimorio: (idx !== "-1" ? (personagens[idx].grimorio || []) : []),
-                talentos: (idx !== "-1" ? (personagens[idx].talentos || []) : []),
-                habilidades: (idx !== "-1" ? (personagens[idx].habilidades || []) : [])
-            };
-            
-            // Se não subiu imagem nova ao editar, manter a antiga
-            if (idx !== "-1" && !p.imagem) p.imagem = personagens[idx].imagem;
-
-            if (idx === "-1") personagens.push(p); else personagens[idx] = p;
-            localStorage.setItem('rpg_v5_data', JSON.stringify(personagens));
+    function salvarPersonagem() {
+        const idx = parseInt(document.getElementById('edit-index').value);
+        const p = {
+            nome: document.getElementById('char-nome').value || "Sem Nome",
+            classe: document.getElementById('char-classe').value || "Indefinida",
+            nivel: document.getElementById('char-nivel').value || 1,
+            xp: document.getElementById('char-xp').value || 0,
+            pv: document.getElementById('char-pv').value || 10,
+            ca: document.getElementById('char-ca').value || 10,
+            ac: document.getElementById('char-ac').value || "",
+            arma: document.getElementById('char-arma').value || "",
+            armadura: document.getElementById('char-armadura').value || "",
+            inventario: document.getElementById('char-inventario').value || "",
+            imagem: document.getElementById('char-img-base64').value,
+            for: document.getElementById('for').value, 
+            des: document.getElementById('des').value,
+            con: document.getElementById('con').value, 
+            int: document.getElementById('int').value,
+            sab: document.getElementById('sab').value, 
+            car: document.getElementById('car').value,
+            grimorio: (idx !== -1 && personagens[idx]) ? (personagens[idx].grimorio || []) : [],
+            talentos: (idx !== -1 && personagens[idx]) ? (personagens[idx].talentos || []) : [],
+            habilidades: (idx !== -1 && personagens[idx]) ? (personagens[idx].habilidades || []) : []
+        };
+        if (idx !== -1 && !p.imagem && personagens[idx]) p.imagem = personagens[idx].imagem;
+        try {
+            if (idx === -1) personagens.push(p);
+            else personagens[idx] = p;
+            localStorage.setItem('rpg_v6_total', JSON.stringify(personagens));
+            alert("Personagem salvo!");
             location.reload();
-        }
+        } catch (e) { alert("Erro: Memória cheia."); }
+    }
 
-        function renderListaPers() {
-            document.getElementById('container-lista-pers').innerHTML = personagens.map((p, i) => `
-                <div class="card-item">
-                    <div onclick="abrirFicha(${i})" style="cursor:pointer; flex:1; display:flex; align-items:center; gap:10px;">
-                        <img src="${p.imagem || ''}" style="width:40px; height:40px; border-radius:4px; object-fit:cover; background:#222;">
-                        <div><b>${p.nome}</b><br><small>${p.classe}</small></div>
+    function renderListaPers() {
+        document.getElementById('container-lista-pers').innerHTML = personagens.map((p, i) => `
+            <div class="card-item">
+                <div onclick="abrirFicha(${i})" style="cursor:pointer"><b>${p.nome}</b><br><small>Nv ${p.nivel} - XP: ${p.xp}</small></div>
+                <div class="actions-btns"><button onclick="excluirPers(${i})" style="color:#ff4d4d">✖</button></div>
+            </div>
+        `).join("");
+    }
+
+    function excluirPers(i) { if(confirm("Excluir?")) { personagens.splice(i, 1); localStorage.setItem('rpg_v6_total', JSON.stringify(personagens)); renderListaPers(); } }
+
+    function editarPers(i) {
+        const p = personagens[i];
+        document.getElementById('edit-index').value = i;
+        document.getElementById('char-nome').value = p.nome;
+        document.getElementById('char-classe').value = p.classe;
+        document.getElementById('char-nivel').value = p.nivel;
+        document.getElementById('char-xp').value = p.xp;
+        document.getElementById('char-pv').value = p.pv;
+        document.getElementById('char-ca').value = p.ca;
+        document.getElementById('char-ac').value = p.ac;
+        document.getElementById('char-arma').value = p.arma;
+        document.getElementById('char-armadura').value = p.armadura;
+        document.getElementById('char-inventario').value = p.inventario;
+        document.getElementById('for').value = p.for; document.getElementById('des').value = p.des;
+        document.getElementById('con').value = p.con; document.getElementById('int').value = p.int;
+        document.getElementById('sab').value = p.sab; document.getElementById('car').value = p.car;
+        fecharModal('modal-ficha'); toggle('criar-ficha');
+    }
+
+    function salvarMagia() {
+        magias.push({ nome: document.getElementById('mag-nome').value, nivel: document.getElementById('mag-nivel').value, acao: document.getElementById('mag-acao').value, desc: document.getElementById('mag-desc').value });
+        localStorage.setItem('rpg_v6_mags', JSON.stringify(magias));
+        renderListaMagias(); toggle('lista-magias');
+    }
+
+    function renderListaMagias() {
+        document.getElementById('container-lista-magias').innerHTML = magias.map((m, i) => `<div class="card-item"><div><b>${m.nome}</b> (Nv ${m.nivel})</div><button onclick="abrirSeletorMagia(${i})" style="background:#bc13fe; border:none; padding:5px; border-radius:4px; color:#fff; cursor:pointer;">✚ Add</button></div>`).join("");
+    }
+
+    function abrirSeletorMagia(mIdx) {
+        document.getElementById('lista-opcoes-pers').innerHTML = personagens.map((p, pIdx) => `<button class="btn-salvar" style="background:#1a052d; border:1px solid #bc13fe" onclick="vincularMagia(${mIdx}, ${pIdx})">${p.nome}</button>`).join("");
+        document.getElementById('modal-seletor').style.display = 'block';
+    }
+
+    function vincularMagia(mIdx, pIdx) {
+        if(!personagens[pIdx].grimorio) personagens[pIdx].grimorio = [];
+        personagens[pIdx].grimorio.push(magias[mIdx]);
+        localStorage.setItem('rpg_v6_total', JSON.stringify(personagens));
+        fecharModal('modal-seletor'); alert("Adicionado!");
+    }
+
+    function salvarTalento() {
+        talentos.push({ nome: document.getElementById('tal-nome').value, req: document.getElementById('tal-req').value, desc: document.getElementById('tal-desc').value });
+        localStorage.setItem('rpg_v6_talentos', JSON.stringify(talentos));
+        renderListaTalentos(); toggle('lista-talentos');
+    }
+
+    function renderListaTalentos() {
+        document.getElementById('container-lista-talentos').innerHTML = talentos.map((t, i) => `<div class="card-item"><div><b>${t.nome}</b></div><button onclick="abrirSeletorTalento(${i})" style="background:#bc13fe; border:none; padding:5px; border-radius:4px; color:#fff; cursor:pointer;">✚ Add</button></div>`).join("");
+    }
+
+    function abrirSeletorTalento(tIdx) {
+        document.getElementById('lista-opcoes-pers-talento').innerHTML = personagens.map((p, pIdx) => `<button class="btn-salvar" style="background:#1a052d; border:1px solid #bc13fe" onclick="vincularTalento(${tIdx}, ${pIdx})">${p.nome}</button>`).join("");
+        document.getElementById('modal-seletor-talento').style.display = 'block';
+    }
+
+    function vincularTalento(tIdx, pIdx) {
+        if(!personagens[pIdx].talentos) personagens[pIdx].talentos = [];
+        personagens[pIdx].talentos.push(talentos[tIdx]);
+        localStorage.setItem('rpg_v6_total', JSON.stringify(personagens));
+        fecharModal('modal-seletor-talento'); alert("Adicionado!");
+    }
+
+    function salvarHabilidade() {
+        habilidades.push({ nome: document.getElementById('hab-nome').value, tipo: document.getElementById('hab-tipo').value, desc: document.getElementById('hab-desc').value });
+        localStorage.setItem('rpg_v6_habs', JSON.stringify(habilidades));
+        renderListaHabilidades(); toggle('lista-habilidades');
+    }
+
+    function renderListaHabilidades() {
+        document.getElementById('container-lista-habilidades').innerHTML = habilidades.map((h, i) => `<div class="card-item"><div><b>${h.nome}</b></div><button onclick="abrirSeletorHabilidade(${i})" style="background:#bc13fe; border:none; padding:5px; border-radius:4px; color:#fff; cursor:pointer;">✚ Add</button></div>`).join("");
+    }
+
+    function abrirSeletorHabilidade(hIdx) {
+        document.getElementById('lista-opcoes-pers-habilidade').innerHTML = personagens.map((p, pIdx) => `<button class="btn-salvar" style="background:#1a052d; border:1px solid #bc13fe" onclick="vincularHabilidade(${hIdx}, ${pIdx})">${p.nome}</button>`).join("");
+        document.getElementById('modal-seletor-habilidade').style.display = 'block';
+    }
+
+    function vincularHabilidade(hIdx, pIdx) {
+        if(!personagens[pIdx].habilidades) personagens[pIdx].habilidades = [];
+        personagens[pIdx].habilidades.push(habilidades[hIdx]);
+        localStorage.setItem('rpg_v6_total', JSON.stringify(personagens));
+        fecharModal('modal-seletor-habilidade'); alert("Adicionado!");
+    }
+
+    // FUNÇÃO CORRIGIDA: Adicionado o onclick para exibir a descrição via alert
+    function abrirFicha(i) {
+        const p = personagens[i];
+        document.getElementById('btn-edit-na-ficha').onclick = () => editarPers(i);
+        document.getElementById('conteudo-ficha-detalhada').innerHTML = `
+            <div class="dnd-header">
+                <img src="${p.imagem || ''}" class="char-img-ficha">
+                <div><small>NOME / XP: ${p.xp}</small><br><b>${p.nome}</b></div>
+                <div style="text-align:right"><small>${p.classe.toUpperCase()}</small><br><b>NV ${p.nivel}</b></div>
+            </div>
+            <div style="display:flex; gap:15px;">
+                <div class="dnd-attr-col">
+                    ${['FOR', 'DES', 'CON', 'INT', 'SAB', 'CAR'].map(a => `<div class="dnd-attr-box"><label>${a}</label><div class="dnd-attr-mod">${getMod(p[a.toLowerCase()])}</div><small>${p[a.toLowerCase()]}</small></div>`).join("")}
+                </div>
+                <div style="flex:1">
+                    <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; border:1px solid #000; padding:10px; text-align:center; margin-bottom:10px;">
+                        <div><small>CA</small><br><b>${p.ca}</b></div>
+                        <div><small>AC</small><br><b>${p.ac || '--'}</b></div>
+                        <div><small>PV</small><br><b>${p.pv}</b></div>
                     </div>
-                    <div class="actions-btns">
-                        <button onclick="editarPers(${i})" style="color:#00d4ff">✎</button>
-                        <button onclick="excluirPers(${i})" style="color:#ff4d4d">✖</button>
+                    <div style="font-size:12px; border:1px solid #000; padding:8px; margin-bottom:10px;">
+                        <b>ARMA:</b> ${p.arma || 'Nenhuma'}<br>
+                        <b>ARMADURA:</b> ${p.armadura || 'Nenhuma'}<br>
+                        <b>INVENTÁRIO:</b> ${p.inventario || 'Vazio'}
                     </div>
+                    <h4 style="border-bottom:1px solid #000; margin:5px 0">HABILIDADES / TALENTOS</h4>
+                    ${(p.habilidades || []).map((h, hi) => `<div class="item-in-sheet"><span onclick="alert('Descrição: ${h.desc ? h.desc.replace(/'/g, "\\'") : 'Sem descrição'}')" style="cursor:pointer; color:blue">⚔️ ${h.nome}</span><span class="item-remove" onclick="removerHabilidade(${i}, ${hi})">✖</span></div>`).join("")}
+                    ${(p.talentos || []).map((t, ti) => `<div class="item-in-sheet"><span onclick="alert('Descrição: ${t.desc ? t.desc.replace(/'/g, "\\'") : 'Sem descrição'}')" style="cursor:pointer; color:blue">📜 ${t.nome}</span><span class="item-remove" onclick="removerTalento(${i}, ${ti})">✖</span></div>`).join("")}
+                    <h4 style="border-bottom:1px solid #000; margin:5px 0; margin-top:10px;">GRIMÓRIO</h4>
+                    ${(p.grimorio || []).map((m, mi) => `<div class="item-in-sheet"><span onclick="alert('Descrição: ${m.desc ? m.desc.replace(/'/g, "\\'") : 'Sem descrição'}')" style="cursor:pointer; color:blue">✨ ${m.nome}</span><span class="item-remove" onclick="removerMagia(${i}, ${mi})">✖</span></div>`).join("")}
                 </div>
-            `).join("");
-        }
+            </div>
+        `;
+        document.getElementById('modal-ficha').style.display = 'block';
+    }
 
-        function editarPers(i) {
-            const p = personagens[i];
-            document.getElementById('char-nome').value = p.nome;
-            document.getElementById('char-classe').value = p.classe;
-            document.getElementById('char-nivel').value = p.nivel;
-            document.getElementById('char-pv').value = p.pv;
-            document.getElementById('char-ca').value = p.ca;
-            document.getElementById('char-ac').value = p.ac;
-            document.getElementById('char-arma').value = p.arma || "";
-            document.getElementById('char-armadura').value = p.armadura || "";
-            document.getElementById('char-inventario').value = p.inventario || "";
-            document.getElementById('char-img-base64').value = p.imagem || "";
-            document.getElementById('for').value = p.for; document.getElementById('des').value = p.des;
-            document.getElementById('con').value = p.con; document.getElementById('int').value = p.int;
-            document.getElementById('sab').value = p.sab; document.getElementById('car').value = p.car;
-            document.getElementById('edit-index').value = i;
-            fecharModal('modal-ficha');
-            toggle('criar-ficha');
-        }
+    function removerMagia(pIdx, mIdx) { if(confirm("Remover?")) { personagens[pIdx].grimorio.splice(mIdx, 1); localStorage.setItem('rpg_v6_total', JSON.stringify(personagens)); abrirFicha(pIdx); } }
+    function removerTalento(pIdx, tIdx) { if(confirm("Remover?")) { personagens[pIdx].talentos.splice(tIdx, 1); localStorage.setItem('rpg_v6_total', JSON.stringify(personagens)); abrirFicha(pIdx); } }
+    function removerHabilidade(pIdx, hIdx) { if(confirm("Remover?")) { personagens[pIdx].habilidades.splice(hIdx, 1); localStorage.setItem('rpg_v6_total', JSON.stringify(personagens)); abrirFicha(pIdx); } }
 
-        function excluirPers(i) { if(confirm("Excluir?")) { personagens.splice(i,1); localStorage.setItem('rpg_v5_data', JSON.stringify(personagens)); renderListaPers(); } }
-
-        // --- LÓGICA MAGIAS ---
-        function salvarMagia() {
-            const m = { nome: document.getElementById('mag-nome').value, nivel: document.getElementById('mag-nivel').value, acao: document.getElementById('mag-acao').value, desc: document.getElementById('mag-desc').value };
-            magias.push(m);
-            localStorage.setItem('rpg_v5_mags', JSON.stringify(magias));
-            renderListaMagias();
-            toggle('lista-magias');
-        }
-
-        function renderListaMagias() {
-            document.getElementById('container-lista-magias').innerHTML = magias.map((m, i) => `
-                <div class="card-item">
-                    <div><b>${m.nome}</b> (Nv ${m.nivel})</div>
-                    <button onclick="abrirSeletorMagia(${i})" style="background:#bc13fe; color:#fff; border:none; padding:5px; border-radius:4px; cursor:pointer;">✚ Adicionar</button>
-                </div>
-            `).join("");
-        }
-
-        function abrirSeletorMagia(mIdx) {
-            document.getElementById('lista-opcoes-pers').innerHTML = personagens.map((p, pIdx) => `<button class="btn-salvar" style="background:#1a052d; border:1px solid #bc13fe" onclick="vincularMagia(${mIdx}, ${pIdx})">${p.nome}</button>`).join("");
-            document.getElementById('modal-seletor').style.display = 'block';
-        }
-
-        function vincularMagia(mIdx, pIdx) {
-            if(!personagens[pIdx].grimorio) personagens[pIdx].grimorio = [];
-            personagens[pIdx].grimorio.push(magias[mIdx]);
-            localStorage.setItem('rpg_v5_data', JSON.stringify(personagens));
-            fecharModal('modal-seletor');
-            alert("Magia adicionada!");
-        }
-
-        // --- LÓGICA TALENTOS ---
-        function salvarTalento() {
-            const t = { nome: document.getElementById('tal-nome').value, req: document.getElementById('tal-req').value, desc: document.getElementById('tal-desc').value };
-            talentos.push(t);
-            localStorage.setItem('rpg_v5_talentos', JSON.stringify(talentos));
-            renderListaTalentos();
-            toggle('lista-talentos');
-        }
-
-        function renderListaTalentos() {
-            document.getElementById('container-lista-talentos').innerHTML = talentos.map((t, i) => `
-                <div class="card-item">
-                    <div><b>${t.nome}</b></div>
-                    <button onclick="abrirSeletorTalento(${i})" style="background:#bc13fe; color:#fff; border:none; padding:5px; border-radius:4px; cursor:pointer;">✚ Adicionar</button>
-                </div>
-            `).join("");
-        }
-
-        function abrirSeletorTalento(tIdx) {
-            document.getElementById('lista-opcoes-pers-talento').innerHTML = personagens.map((p, pIdx) => `<button class="btn-salvar" style="background:#1a052d; border:1px solid #bc13fe" onclick="vincularTalento(${tIdx}, ${pIdx})">${p.nome}</button>`).join("");
-            document.getElementById('modal-seletor-talento').style.display = 'block';
-        }
-
-        function vincularTalento(tIdx, pIdx) {
-            if(!personagens[pIdx].talentos) personagens[pIdx].talentos = [];
-            personagens[pIdx].talentos.push(talentos[tIdx]);
-            localStorage.setItem('rpg_v5_data', JSON.stringify(personagens));
-            fecharModal('modal-seletor-talento');
-            alert("Talento adicionado!");
-        }
-
-        // --- LÓGICA HABILIDADES ---
-        function salvarHabilidade() {
-            const h = { nome: document.getElementById('hab-nome').value, tipo: document.getElementById('hab-tipo').value, desc: document.getElementById('hab-desc').value };
-            habilidades.push(h);
-            localStorage.setItem('rpg_v5_habs', JSON.stringify(habilidades));
-            renderListaHabilidades();
-            toggle('lista-habilidades');
-        }
-
-        function renderListaHabilidades() {
-            document.getElementById('container-lista-habilidades').innerHTML = habilidades.map((h, i) => `
-                <div class="card-item">
-                    <div><b>${h.nome}</b> <small>(${h.tipo})</small></div>
-                    <button onclick="abrirSeletorHabilidade(${i})" style="background:#bc13fe; color:#fff; border:none; padding:5px; border-radius:4px; cursor:pointer;">✚ Adicionar</button>
-                </div>
-            `).join("");
-        }
-
-        function abrirSeletorHabilidade(hIdx) {
-            document.getElementById('lista-opcoes-pers-habilidade').innerHTML = personagens.map((p, pIdx) => `<button class="btn-salvar" style="background:#1a052d; border:1px solid #bc13fe" onclick="vincularHabilidade(${hIdx}, ${pIdx})">${p.nome}</button>`).join("");
-            document.getElementById('modal-seletor-habilidade').style.display = 'block';
-        }
-
-        function vincularHabilidade(hIdx, pIdx) {
-            if(!personagens[pIdx].habilidades) personagens[pIdx].habilidades = [];
-            personagens[pIdx].habilidades.push(habilidades[hIdx]);
-            localStorage.setItem('rpg_v5_data', JSON.stringify(personagens));
-            fecharModal('modal-seletor-habilidade');
-            alert("Habilidade adicionada!");
-        }
-
-        // --- FICHA DETALHADA ---
-        function abrirFicha(i) {
-            const p = personagens[i];
-            document.getElementById('btn-edit-na-ficha').onclick = function() { editarPers(i); };
-            
-            document.getElementById('conteudo-ficha-detalhada').innerHTML = `
-                <div class="dnd-header">
-                    <img src="${p.imagem || ''}" class="char-img-ficha">
-                    <div><small>NOME</small><br><b>${p.nome}</b></div>
-                    <div style="text-align:right"><small>${p.classe.toUpperCase()} NV ${p.nivel}</small></div>
-                </div>
-                <div style="display:flex; gap:15px;">
-                    <div class="dnd-attr-col">
-                        ${['FOR', 'DES', 'CON', 'INT', 'SAB', 'CAR'].map(a => `<div class="dnd-attr-box"><label>${a}</label><div class="dnd-attr-mod">${getMod(p[a.toLowerCase()])}</div><small>${p[a.toLowerCase()]}</small></div>`).join("")}
-                    </div>
-                    <div style="flex:1">
-                        <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; border:1px solid #000; padding:10px; text-align:center; margin-bottom:10px;">
-                            <div><small>CA</small><br><b>${p.ca}</b></div>
-                            <div><small>AC</small><br><b>${p.ac || '--'}</b></div>
-                            <div><small>PV</small><br><b>${p.pv}</b></div>
-                        </div>
-                        <div style="font-size:12px; border:1px solid #000; padding:8px; margin-bottom:10px;">
-                            <b>ARMA:</b> ${p.arma || 'Nenhuma'}<br>
-                            <b>ARMADURA:</b> ${p.armadura || 'Nenhuma'}
-                        </div>
-                        <div style="font-size:12px; border:1px solid #000; padding:8px; height:60px; overflow-y:auto; margin-bottom:10px;">
-                            <b>INVENTÁRIO:</b><br>${p.inventario || 'Vazio'}
-                        </div>
-                        
-                        <h4 style="border-bottom:1px solid #000; margin:5px 0">HABILIDADES</h4>
-                        ${(p.habilidades || []).map((h, hi) => `<div class="item-in-sheet"><span onclick="alert('${h.desc}')">⚔️ ${h.nome}</span><span class="item-remove" onclick="removerHabilidade(${i}, ${hi})">✖</span></div>`).join("") || '<small>Sem habilidades.</small>'}
-
-                        <h4 style="border-bottom:1px solid #000; margin:5px 0; margin-top:10px;">TALENTOS</h4>
-                        ${(p.talentos || []).map((t, ti) => `<div class="item-in-sheet"><span onclick="alert('${t.desc}')">📜 ${t.nome}</span><span class="item-remove" onclick="removerTalento(${i}, ${ti})">✖</span></div>`).join("") || '<small>Sem talentos.</small>'}
-
-                        <h4 style="border-bottom:1px solid #000; margin:5px 0; margin-top:10px;">GRIMÓRIO</h4>
-                        ${(p.grimorio || []).map((m, mi) => `<div class="item-in-sheet"><span onclick="alert('${m.desc}')">✨ ${m.nome}</span><span class="item-remove" onclick="removerMagia(${i}, ${mi})">✖</span></div>`).join("") || '<small>Sem magias.</small>'}
-                    </div>
-                </div>
-            `;
-            document.getElementById('modal-ficha').style.display = 'block';
-        }
-
-        function removerMagia(pIdx, mIdx) { 
-            if(confirm("Remover Magia?")) { personagens[pIdx].grimorio.splice(mIdx, 1); localStorage.setItem('rpg_v5_data', JSON.stringify(personagens)); abrirFicha(pIdx); } 
-        }
-
-        function removerTalento(pIdx, tIdx) { 
-            if(confirm("Remover Talento?")) { personagens[pIdx].talentos.splice(tIdx, 1); localStorage.setItem('rpg_v5_data', JSON.stringify(personagens)); abrirFicha(pIdx); } 
-        }
-
-        function removerHabilidade(pIdx, hIdx) { 
-            if(confirm("Remover Habilidade?")) { personagens[pIdx].habilidades.splice(hIdx, 1); localStorage.setItem('rpg_v5_data', JSON.stringify(personagens)); abrirFicha(pIdx); } 
-        }
-
-        // Renderização inicial
-        renderListaPers();
-        renderListaMagias();
-        renderListaTalentos();
-        renderListaHabilidades();
-    </script>
+    renderListaPers(); renderListaMagias(); renderListaTalentos(); renderListaHabilidades();
+</script>
 </body>
 </html>
