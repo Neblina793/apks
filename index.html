@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Desenvolvimento de APK - Home</title>
+    <style>
+        :root {
+            --bg-deep: #050508;
+            --purple-glow: #8a2be2;
+            --purple-dark: #1a002e;
+            --accent: #00d4ff; 
+            --text: #ffffff;
+        }
+
+        * {
+            box-sizing: border-box;
+            font-family: 'Inter', 'Segoe UI', sans-serif;
+        }
+
+        body {
+            margin: 0;
+            background-color: var(--bg-deep);
+            color: var(--text);
+            background: radial-gradient(circle at center, var(--purple-dark) 0%, var(--bg-deep) 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .stars {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: url('https://www.transparenttextures.com/patterns/stardust.png');
+            opacity: 0.2;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        nav {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(15px);
+            border-bottom: 1px solid rgba(138, 43, 226, 0.3);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        nav a {
+            color: #ccc;
+            text-decoration: none;
+            font-weight: 500;
+            transition: 0.3s;
+            padding: 5px 15px;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            letter-spacing: 1px;
+        }
+
+        nav a:hover {
+            color: var(--accent);
+            text-shadow: 0 0 10px var(--accent);
+        }
+
+        header {
+            height: 50vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            position: relative;
+            z-index: 1;
+            animation: fadeIn 2s ease;
+        }
+
+        .logo-container {
+            width: 180px; 
+            height: auto;
+            margin-bottom: 20px;
+            filter: drop-shadow(0 0 15px var(--purple-glow));
+        }
+
+        h1 {
+            font-size: 3.5rem;
+            margin: 0;
+            text-transform: uppercase;
+            background: linear-gradient(to bottom, #fff, #8a2be2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            filter: drop-shadow(0 0 10px rgba(138, 43, 226, 0.5));
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 100px auto 100px;
+            padding: 20px;
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 20px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(138, 43, 226, 0.2);
+            padding: 25px;
+            border-radius: 20px;
+            transition: 0.4s ease;
+            backdrop-filter: blur(10px);
+            text-align: center;
+            cursor: pointer;
+            text-decoration: none; /* Garante que o link não mude a cor do texto */
+            display: block; /* Faz o card ocupar o espaço corretamente como link */
+        }
+
+        .card:hover {
+            border-color: var(--purple-glow);
+            transform: scale(1.02);
+            box-shadow: 0 0 30px rgba(138, 43, 226, 0.3);
+            background: rgba(255, 255, 255, 0.07);
+        }
+
+        .card h2 {
+            color: var(--accent);
+            margin: 0 0 10px 0;
+            font-size: 1.4rem;
+        }
+
+        .card p {
+            color: #bbb;
+            margin: 0;
+            font-size: 0.95rem;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        footer {
+            text-align: center;
+            padding: 60px;
+            color: #555;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="stars"></div>
+
+    <nav>
+        <a href="index.html">Home</a>
+        <a href="projetos.html">Projetos</a>
+        <a href="#ferramentas">Ferramentas</a>
+        <a href="#contato">Contato</a>
+    </nav>
+
+    <header>
+        <img src="imagens/logo.png" alt="Logo" class="logo-container">
+        <h1>Desenvolvimento de APK</h1>
+        <p style="color: #aaa;">Criando soluções móveis de alto desempenho.</p>
+    </header>
+
+    <main class="container">
+        <a href="projetos.html" class="card">
+            <h2>📱 Apps Android</h2>
+            <p>Desenvolvimento focado em performance e interface fluida. Clique para ver projetos.</p>
+        </a>
+
+        <div class="card">
+            <h2>🛠️ Modding e Strings</h2>
+            <p>Especialista em manipulação de XML e tradução de APKs.</p>
+        </div>
+
+        <div class="card">
+            <h2>⚡ Otimização</h2>
+            <p>Redução de consumo de memória e melhoria de tempo de resposta.</p>
+        </div>
+    </main>
+
+    <footer>
+        &copy; 2026 - Evandro Neto Desenvolvimento de APK e Soluções Digitais
+    </footer>
+
+</body>
+</html>

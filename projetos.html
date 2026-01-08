@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meus Projetos - Desenvolvimento de APK</title>
+    <style>
+        :root {
+            --bg-deep: #050508;
+            --purple-glow: #8a2be2;
+            --purple-dark: #1a002e;
+            --accent: #00d4ff; 
+            --text: #ffffff;
+        }
+
+        * { box-sizing: border-box; font-family: 'Inter', sans-serif; }
+
+        body {
+            margin: 0;
+            background: radial-gradient(circle at center, var(--purple-dark) 0%, var(--bg-deep) 100%);
+            color: var(--text);
+            min-height: 100vh;
+        }
+
+        nav {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(15px);
+            border-bottom: 1px solid rgba(138, 43, 226, 0.3);
+        }
+
+        nav a {
+            color: #ccc;
+            text-decoration: none;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            transition: 0.3s;
+        }
+
+        nav a:hover { color: var(--accent); }
+
+        .container {
+            max-width: 900px;
+            margin: 60px auto;
+            padding: 20px;
+        }
+
+        h1 {
+            text-align: center;
+            text-transform: uppercase;
+            background: linear-gradient(to bottom, #fff, #8a2be2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 50px;
+        }
+
+        /* Sistema de Acordeão para Projetos */
+        .project-item {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(138, 43, 226, 0.2);
+            border-radius: 15px;
+            margin-bottom: 20px;
+            overflow: hidden;
+            transition: 0.3s;
+        }
+
+        .project-header {
+            padding: 25px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(138, 43, 226, 0.05);
+        }
+
+        .project-header:hover { background: rgba(138, 43, 226, 0.15); }
+
+        .project-header h2 {
+            margin: 0;
+            font-size: 1.4rem;
+            color: var(--accent);
+        }
+
+        .project-content {
+            max-height: 0;
+            opacity: 0;
+            padding: 0 25px;
+            transition: all 0.5s ease;
+            overflow: hidden;
+            line-height: 1.6;
+            color: #bbb;
+        }
+
+        /* Classe ativa para expandir */
+        .project-item.active .project-content {
+            max-height: 1000px;
+            opacity: 1;
+            padding: 25px;
+            border-top: 1px solid rgba(138, 43, 226, 0.2);
+        }
+
+        .btn-link {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 10px 20px;
+            background: var(--purple-glow);
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: bold;
+            box-shadow: 0 0 15px var(--purple-glow);
+            transition: 0.3s;
+        }
+
+        .btn-link:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 25px var(--purple-glow);
+        }
+
+        .icon { font-size: 1.2rem; transition: 0.3s; }
+        .project-item.active .icon { transform: rotate(180deg); color: var(--accent); }
+
+    </style>
+</head>
+<body>
+
+    <nav>
+        <a href="index.html">Home</a>
+        <a href="projetos.html">Projetos</a>
+        <a href="#">Ferramentas</a>
+        <a href="#">Contato</a>
+    </nav>
+
+    <div class="container">
+        <h1>Pasta de Projetos</h1>
+
+        <div class="project-item">
+            <div class="project-header" onclick="toggleProject(this)">
+                <h2>⚔️ Era dos Heróis</h2>
+                <span class="icon">▼</span>
+            </div>
+            <div class="project-content">
+                <p><strong>Descrição:</strong> Um sistema completo de RPG focado na mitologia grega, desenvolvido para facilitar o gerenciamento de fichas, divindades e crônicas de campanha.</p>
+                <p><strong>Funcionalidades:</strong> Grimório de magias, sistema de talentos, notícias expansíveis e criação de personagens automatizada.</p>
+                
+                <a href="https://neblina793.github.io/era-dos-herois/index.html" target="_blank" class="btn-link">Acessar Projeto Online</a>
+            </div>
+        </div>
+
+        <div class="project-item">
+            <div class="project-header" onclick="toggleProject(this)">
+                <h2>📓 RPG Manager 5e</h2>
+                <span class="icon">▼</span>
+            </div>
+            <div class="project-content">
+                <p><strong>Descrição:</strong> Uma ferramenta robusta para jogadores e mestres de Dungeons & Dragons 5ª Edição. Este projeto foca na organização de personagens e recursos de jogo em uma interface "Dark Neon" moderna.</p>
+                <p><strong>O que esta página faz:</strong></p>
+                <ul>
+                    <li><strong>Gestão de Personagens:</strong> Criação, edição e exclusão de fichas completas, incluindo atributos (FOR, DES, CON, etc.) e cálculo automático de modificadores.</li>
+                    <li><strong>Biblioteca Dinâmica:</strong> Permite criar um banco de dados personalizado de Magias e Talentos.</li>
+                    <li><strong>Sistema de Vínculos:</strong> Você pode adicionar magias e talentos criados diretamente à ficha de qualquer personagem salvo.</li>
+                    <li><strong>Ficha de Papel Digital:</strong> Exibe os dados em um layout clássico de ficha de RPG para fácil leitura durante as sessões.</li>
+                    <li><strong>Persistência de Dados:</strong> Utiliza o armazenamento local do navegador (LocalStorage) para garantir que seus personagens não sumam ao fechar a página.</li>
+                </ul>
+                
+                <a href="RPG_ficha.html" class="btn-link">Abrir Gerenciador de Fichas</a>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        function toggleProject(header) {
+            const item = header.parentElement;
+            item.classList.toggle('active');
+        }
+    </script>
+</body>
+</html>
