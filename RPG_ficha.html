@@ -1,356 +1,257 @@
-<!DOCTYPE html>
-<html lang="pt-br">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RPG Manager 5e - Versão Final Ilimitada</title>
-    <style>
-        /* TEMA DARK NEON */
-        body { font-family: 'Segoe UI', sans-serif; background-color: #0d0216; color: #e0e0e0; padding: 20px; margin: 0; display: flex; flex-direction: column; align-items: center; }
-        h1 { color: #bc13fe; text-transform: uppercase; text-shadow: 0 0 10px #bc13fe; margin-bottom: 25px; }
-        .container { width: 100%; max-width: 550px; display: flex; flex-direction: column; gap: 12px; }
-        
-        .btn-expande { background-color: #1a052d; color: #f0f0f0; padding: 16px; border: 2px solid #bc13fe; text-align: left; width: 100%; font-weight: bold; cursor: pointer; border-radius: 8px; box-shadow: inset 0 0 5px #bc13fe; transition: 0.3s; }
-        .btn-expande:hover { background-color: #bc13fe; color: #fff; }
-        .conteudo { display: none; background-color: #120b1a; padding: 20px; border: 1px solid #bc13fe; border-top: none; border-radius: 0 0 8px 8px; margin-top: -12px; box-shadow: 0 5px 15px rgba(188,19,254,0.2); }
-
-        /* FORMULÁRIO */
-        .grid-campos { display: grid; grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); gap: 10px; margin-bottom: 15px; }
-        .form-group { display: flex; flex-direction: column; gap: 5px; margin-bottom: 10px; }
-        label { font-size: 11px; color: #bc13fe; font-weight: bold; text-transform: uppercase; }
-        input, textarea { padding: 10px; background: #000; border: 1px solid #444; color: white; border-radius: 4px; outline: none; width: 100%; box-sizing: border-box; }
-        input:focus, textarea:focus { border-color: #bc13fe; box-shadow: 0 0 5px #bc13fe; }
-
-        /* MODAIS */
-        #modal-ficha, #modal-seletor, #modal-seletor-talento, #modal-seletor-habilidade { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 2000; overflow-y: auto; padding: 10px; }
-        .modal-content { background: #120b1a; border: 2px solid #bc13fe; max-width: 500px; margin: 40px auto; padding: 25px; border-radius: 12px; box-shadow: 0 0 30px #bc13fe; }
-        
-        /* FICHA D&D 5E */
-        .dnd-sheet { background: #fff; color: #000; max-width: 700px; margin: auto; padding: 25px; border-radius: 5px; }
-        .dnd-header { border-bottom: 2px solid #000; padding-bottom: 10px; margin-bottom: 15px; display: grid; grid-template-columns: 100px 1fr 1fr; gap: 15px; align-items: center; }
-        .char-img-ficha { width: 80px; height: 80px; border: 2px solid #000; border-radius: 4px; object-fit: cover; background: #eee; }
-        .dnd-attr-col { display: flex; flex-direction: column; gap: 8px; width: 100px; }
-        .dnd-attr-box { border: 1px solid #000; border-radius: 10px; text-align: center; padding: 5px; background: #f9f9f9; }
-        .dnd-attr-mod { border: 1px solid #000; border-radius: 50%; width: 28px; height: 28px; margin: 4px auto; display: flex; align-items: center; justify-content: center; font-weight: bold; background: #fff; }
-        
-        /* BOTÕES DE AÇÃO */
-        .btn-salvar { background: #bc13fe; color: white; border: none; padding: 15px; font-weight: bold; border-radius: 4px; cursor: pointer; width: 100%; text-transform: uppercase; margin-top: 10px; }
-        .card-item { background: #1a052d; border-left: 4px solid #bc13fe; padding: 12px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; border-radius: 4px; }
-        .actions-btns button { background: none; border: none; font-size: 18px; cursor: pointer; margin-left: 8px; }
-        .btn-fechar { background: #ff4d4d; color: white; border: none; padding: 10px; border-radius: 4px; width: 100%; cursor: pointer; margin-top: 20px; font-weight: bold; }
-        
-        .item-in-sheet { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px dotted #888; padding: 5px 0; font-size: 13px; }
-        .item-remove { color: #ff4d4d; cursor: pointer; font-weight: bold; padding: 0 5px; }
-        
-        .btn-edit-ficha { background: #00d4ff; color: #000; border: none; padding: 5px 10px; border-radius: 4px; font-weight: bold; cursor: pointer; margin-bottom: 10px; float: left; }
-    </style>
-</head>
-<body>
-
-    <h1>RPG Manager 5e</h1>
-
-    <div class="container">
-        <button class="btn-expande" onclick="toggle('criar-ficha')">✚ CRIAR / EDITAR PERSONAGEM</button>
-        <div id="criar-ficha" class="conteudo">
-            <input type="hidden" id="edit-index" value="-1">
-            <input type="hidden" id="char-img-base64" value="">
-            
-            <div class="form-group">
-                <label>Imagem do Personagem (Será otimizada para economizar espaço)</label>
-                <input type="file" id="char-img-input" accept="image/*" onchange="converterImagem()">
-            </div>
-
-            <div class="grid-campos">
-                <div class="form-group" style="grid-column: span 2;"><label>Nome</label><input type="text" id="char-nome"></div>
-                <div class="form-group"><label>Classe</label><input type="text" id="char-classe"></div>
-            </div>
-            <div class="grid-campos">
-                <div class="form-group"><label>Nível</label><input type="number" id="char-nivel" value="1"></div>
-                <div class="form-group"><label>XP Atual</label><input type="number" id="char-xp" value="0"></div>
-                <div class="form-group"><label>PV Máx</label><input type="number" id="char-pv"></div>
-            </div>
-            <div class="grid-campos">
-                <div class="form-group"><label>CA</label><input type="number" id="char-ca"></div>
-                <div class="form-group"><label>AC (Bônus Acerto)</label><input type="text" id="char-ac" placeholder="+5"></div>
-                <div class="form-group"><label>Arma Principal</label><input type="text" id="char-arma"></div>
-            </div>
-            <div class="form-group"><label>Armadura / Defesa</label><input type="text" id="char-armadura"></div>
-            <div class="form-group"><label>Inventário</label><textarea id="char-inventario" rows="3"></textarea></div>
-
-            <label>Atributos</label>
-            <div class="grid-campos">
-                <div class="form-group"><label>FOR</label><input type="number" id="for" value="10"></div>
-                <div class="form-group"><label>DES</label><input type="number" id="des" value="10"></div>
-                <div class="form-group"><label>CON</label><input type="number" id="con" value="10"></div>
-                <div class="form-group"><label>INT</label><input type="number" id="int" value="10"></div>
-                <div class="form-group"><label>SAB</label><input type="number" id="sab" value="10"></div>
-                <div class="form-group"><label>CAR</label><input type="number" id="car" value="10"></div>
-            </div>
-            <button class="btn-salvar" onclick="salvarPersonagem()">💾 Salvar Personagem</button>
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="Cache-Control" content="no-store" />
+    <title>D&D 2024 - Criador de Fichas</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <aside class="sidebar">
+        <div class="brand">
+          <div class="brand-mark">d20</div>
+          <div>
+            <h1>Arquivo de Fichas</h1>
+            <p>D&D 2024 / 5.5</p>
+          </div>
         </div>
 
-        <button class="btn-expande" onclick="toggle('criar-magia')">✚ CRIAR NOVA MAGIA</button>
-        <div id="criar-magia" class="conteudo">
-            <div class="form-group"><label>Nome da Magia</label><input type="text" id="mag-nome"></div>
-            <div class="grid-campos">
-                <div class="form-group"><label>Nível</label><input type="number" id="mag-nivel" value="0"></div>
-                <div class="form-group"><label>Ação</label><input type="text" id="mag-acao"></div>
+        <button class="primary full" id="newCharacterBtn">Nova ficha</button>
+        <input class="search" id="searchSaved" type="search" placeholder="Buscar personagem" />
+
+        <section>
+          <h2>Fichas salvas</h2>
+          <div id="savedList" class="saved-list"></div>
+        </section>
+
+        <section class="viewer" id="characterViewer">
+          <h2>Ficha aberta</h2>
+          <div id="viewerContent" class="viewer-content">
+            <p class="hint">Clique em um personagem salvo para visualizar a ficha aqui.</p>
+          </div>
+        </section>
+      </aside>
+
+      <main class="workspace">
+        <header class="topbar">
+          <div>
+            <p class="eyebrow">Criador de personagem</p>
+            <h2 id="builderTitle">Nova ficha</h2>
+          </div>
+          <div class="topbar-actions">
+            <button class="ghost" id="exportPdfBtn">Salvar como PDF</button>
+            <button class="primary" id="saveCharacterBtn">Salvar ficha</button>
+          </div>
+        </header>
+
+        <div class="notice">
+          Este app inclui conteúdo-base demonstrativo, 391 magias com metadados da lista do Simple Skans e campos para adicionar/importar opções. Descrições integrais de livros/sites não são copiadas; use o link de fonte quando precisar consultar o texto completo.
+        </div>
+
+        <nav class="tabs" aria-label="Seções da ficha">
+          <button class="tab active" data-tab="identity">Identidade</button>
+          <button class="tab" data-tab="abilities">Atributos</button>
+          <button class="tab" data-tab="combat">Combate</button>
+          <button class="tab" data-tab="skills">Perícias</button>
+          <button class="tab" data-tab="spells">Magias</button>
+          <button class="tab" data-tab="features">Habilidades</button>
+          <button class="tab" data-tab="content">Conteúdo</button>
+        </nav>
+
+        <form id="characterForm">
+          <section class="tab-panel active" id="tab-identity">
+            <div class="grid two">
+              <div class="panel">
+                <h3>Dados principais</h3>
+                <div class="field-grid">
+                  <label>Nome do personagem<input id="name" name="name" type="text" placeholder="Ex.: Elyon" /></label>
+                  <label>Jogador<input id="player" name="player" type="text" placeholder="Seu nome" /></label>
+                  <label>Nível<input id="level" name="level" type="number" min="1" max="20" value="1" /></label>
+                  <label>Pontos de vida atuais<input id="hp" name="hp" type="number" min="0" value="10" /></label>
+                  <label>Pontos de vida máximos<input id="maxHp" name="maxHp" type="number" min="1" value="10" /></label>
+                  <label>Pontos de vida temporários<input id="tempHp" name="tempHp" type="number" min="0" value="0" /></label>
+                  <label>Classe de Armadura<input id="ac" name="ac" type="number" min="1" value="10" /></label>
+                  <label>Deslocamento<input id="speed" name="speed" type="text" value="9 m" /></label>
+                  <label>Tendência / ideal<input id="alignment" name="alignment" type="text" placeholder="Ex.: protetor, livre, justo" /></label>
+                  <label>Experiência<input id="xp" name="xp" type="number" min="0" value="0" /></label>
+                </div>
+              </div>
+
+              <div class="stats-panel">
+                <div>
+                  <span>Bônus de proficiência</span>
+                  <strong id="profBonus">+2</strong>
+                </div>
+                <div>
+                  <span>Iniciativa</span>
+                  <strong id="initiative">+0</strong>
+                </div>
+                <div>
+                  <span>Percepção passiva</span>
+                  <strong id="passivePerception">10</strong>
+                </div>
+                <div>
+                  <span>CD de magias</span>
+                  <strong id="spellDc">10</strong>
+                </div>
+                <div>
+                  <span>Ataque mágico</span>
+                  <strong id="spellAttack">+2</strong>
+                </div>
+              </div>
             </div>
-            <div class="form-group"><label>Descrição</label><textarea id="mag-desc" rows="3"></textarea></div>
-            <button class="btn-salvar" onclick="salvarMagia()">💾 Salvar no Grimório</button>
-        </div>
 
-        <button class="btn-expande" onclick="toggle('criar-talento')">✚ CRIAR NOVO TALENTO</button>
-        <div id="criar-talento" class="conteudo">
-            <div class="form-group"><label>Nome do Talento</label><input type="text" id="tal-nome"></div>
-            <div class="form-group"><label>Requisito</label><input type="text" id="tal-req"></div>
-            <div class="form-group"><label>Descrição</label><textarea id="tal-desc" rows="3"></textarea></div>
-            <button class="btn-salvar" onclick="salvarTalento()">💾 Salvar Talentos</button>
-        </div>
+            <div class="grid three">
+              <div class="panel">
+                <h3>Espécie</h3>
+                <div id="speciesOptions" class="option-grid"></div>
+              </div>
+              <div class="panel">
+                <h3>Classe</h3>
+                <div id="classOptions" class="option-grid"></div>
+              </div>
+              <div class="panel">
+                <h3>Antecedente</h3>
+                <div id="backgroundOptions" class="option-grid"></div>
+              </div>
+            </div>
+          </section>
 
-        <button class="btn-expande" onclick="toggle('criar-habilidade')">✚ CRIAR NOVA HABILIDADE</button>
-        <div id="criar-habilidade" class="conteudo">
-            <div class="form-group"><label>Nome da Habilidade</label><input type="text" id="hab-nome"></div>
-            <div class="form-group"><label>Tipo</label><input type="text" id="hab-tipo"></div>
-            <div class="form-group"><label>Descrição</label><textarea id="hab-desc" rows="3"></textarea></div>
-            <button class="btn-salvar" onclick="salvarHabilidade()">💾 Salvar Habilidades</button>
-        </div>
+          <section class="tab-panel" id="tab-abilities">
+            <div class="ability-grid" id="abilityGrid"></div>
+            <div class="panel">
+              <h3>Testes de resistência</h3>
+              <p class="hint">Clique para marcar proficiência no teste de resistência.</p>
+              <div id="savesGrid" class="saves-grid"></div>
+            </div>
+            <div class="panel">
+              <h3>Resumo de combate</h3>
+              <div class="field-grid">
+                <label>Dados de vida<input id="hitDice" name="hitDice" type="text" placeholder="Ex.: 1d10" /></label>
+                <label>Armas / armaduras<textarea id="proficiencies" name="proficiencies" rows="3"></textarea></label>
+                <label>Equipamento<textarea id="equipment" name="equipment" rows="3"></textarea></label>
+                <label>Anotações<textarea id="notes" name="notes" rows="3"></textarea></label>
+              </div>
+            </div>
+          </section>
 
-        <hr style="width:100%; border:0.5px solid #bc13fe; margin:15px 0;">
+          <section class="tab-panel" id="tab-combat">
+            <div class="grid two">
+              <div class="panel">
+                <h3>Ataques e ações</h3>
+                <div id="attacksList" class="selected-list"></div>
+                <div class="custom-add attack-add">
+                  <input id="attackName" type="text" placeholder="Ataque, truque ou ação" />
+                  <input id="attackBonus" type="text" placeholder="Bônus" />
+                  <input id="attackDamage" type="text" placeholder="Dano / efeito" />
+                  <button type="button" class="ghost" id="addAttackBtn">Adicionar</button>
+                </div>
+              </div>
+              <div class="panel">
+                <h3>Recursos e estado</h3>
+                <div class="field-grid">
+                  <label>Inspiração heroica
+                    <select id="heroicInspiration">
+                      <option value="Não">Não</option>
+                      <option value="Sim">Sim</option>
+                    </select>
+                  </label>
+                  <label>Exaustão<input id="exhaustion" name="exhaustion" type="number" min="0" max="6" value="0" /></label>
+                  <label>Moedas<textarea id="currency" name="currency" rows="3" placeholder="PO, PP, PC..."></textarea></label>
+                  <label>Recursos de classe<textarea id="resources" name="resources" rows="3" placeholder="Usos, cargas, canalizar..."></textarea></label>
+                  <label>Condições<textarea id="conditions" name="conditions" rows="3" placeholder="Envenenado, caído, agarrado..."></textarea></label>
+                  <label>Idiomas e ferramentas<textarea id="languagesTools" name="languagesTools" rows="3"></textarea></label>
+                </div>
+              </div>
+            </div>
+          </section>
 
-        <button class="btn-expande" onclick="toggle('lista-pers')">📋 MEUS PERSONAGENS</button>
-        <div id="lista-pers" class="conteudo"><div id="container-lista-pers"></div></div>
+          <section class="tab-panel" id="tab-skills">
+            <div class="panel">
+              <h3>Perícias clicáveis</h3>
+              <p class="hint">Clique uma vez para proficiência, duas para especialização, três para limpar.</p>
+              <div id="skillsGrid" class="skills-grid"></div>
+            </div>
+          </section>
 
-        <button class="btn-expande" onclick="toggle('lista-magias')">📖 GRIMÓRIO (MAGIAS)</button>
-        <div id="lista-magias" class="conteudo"><div id="container-lista-magias"></div></div>
+          <section class="tab-panel" id="tab-spells">
+            <div class="grid two">
+              <div class="panel">
+                <h3>Adicionar magia</h3>
+                <div class="filters">
+                  <input id="spellSearch" type="search" placeholder="Buscar magia" />
+                  <select id="spellLevelFilter">
+                    <option value="">Todos os círculos</option>
+                  </select>
+                </div>
+                <div id="spellOptions" class="catalog"></div>
+              </div>
+              <div class="panel">
+                <h3>Magias da ficha</h3>
+                <div id="selectedSpells" class="selected-list"></div>
+                <div class="custom-add">
+                  <input id="customSpellName" type="text" placeholder="Magia personalizada" />
+                  <input id="customSpellLevel" type="number" min="0" max="9" value="0" />
+                  <button type="button" class="ghost" id="addCustomSpell">Adicionar</button>
+                </div>
+              </div>
+            </div>
+          </section>
 
-        <button class="btn-expande" onclick="toggle('lista-talentos')">📜 TALENTOS</button>
-        <div id="lista-talentos" class="conteudo"><div id="container-lista-talentos"></div></div>
+          <section class="tab-panel" id="tab-features">
+            <div class="grid two">
+              <div class="panel">
+                <h3>Habilidades disponíveis</h3>
+                <div id="featureOptions" class="catalog"></div>
+              </div>
+              <div class="panel">
+                <h3>Habilidades da ficha</h3>
+                <div id="selectedFeatures" class="selected-list"></div>
+                <div class="custom-add">
+                  <input id="customFeatureName" type="text" placeholder="Habilidade personalizada" />
+                  <button type="button" class="ghost" id="addCustomFeature">Adicionar</button>
+                </div>
+              </div>
+            </div>
+          </section>
 
-        <button class="btn-expande" onclick="toggle('lista-habilidades')">⚔️ HABILIDADES</button>
-        <div id="lista-habilidades" class="conteudo"><div id="container-lista-habilidades"></div></div>
+          <section class="tab-panel" id="tab-content">
+            <div class="grid two">
+              <div class="panel">
+                <h3>Adicionar opção ao app</h3>
+                <div class="field-grid">
+                  <label>Tipo
+                    <select id="contentType">
+                      <option value="species">Espécie</option>
+                      <option value="classes">Classe</option>
+                      <option value="backgrounds">Antecedente</option>
+                      <option value="spells">Magia</option>
+                      <option value="features">Habilidade</option>
+                    </select>
+                  </label>
+                  <label>Nome<input id="contentName" type="text" /></label>
+                  <label>Detalhes<textarea id="contentText" rows="4"></textarea></label>
+                </div>
+                <button type="button" class="primary" id="addContentBtn">Adicionar conteúdo</button>
+              </div>
+
+              <div class="panel">
+                <h3>Importar JSON</h3>
+                <p class="hint">Cole um JSON com chaves: species, classes, backgrounds, spells, features.</p>
+                <textarea id="importJson" rows="9" placeholder='{"spells":[{"name":"Nome","level":1,"summary":"Resumo"}]}'></textarea>
+                <button type="button" class="ghost" id="importJsonBtn">Importar</button>
+              </div>
+            </div>
+          </section>
+        </form>
+      </main>
     </div>
 
-    <div id="modal-seletor"><div class="modal-content"><h3>Vincular Magia a:</h3><div id="lista-opcoes-pers"></div><button class="btn-fechar" onclick="fecharModal('modal-seletor')">FECHAR</button></div></div>
-    <div id="modal-seletor-talento"><div class="modal-content"><h3>Vincular Talento a:</h3><div id="lista-opcoes-pers-talento"></div><button class="btn-fechar" onclick="fecharModal('modal-seletor-talento')">FECHAR</button></div></div>
-    <div id="modal-seletor-habilidade"><div class="modal-content"><h3>Vincular Habilidade a:</h3><div id="lista-opcoes-pers-habilidade"></div><button class="btn-fechar" onclick="fecharModal('modal-seletor-habilidade')">FECHAR</button></div></div>
+    <section id="printSheet" class="print-sheet"></section>
 
-    <div id="modal-ficha"><div class="dnd-sheet">
-        <button class="btn-edit-ficha" id="btn-edit-na-ficha">✎ EDITAR</button>
-        <div id="conteudo-ficha-detalhada"></div>
-        <button class="btn-fechar" style="background:#000" onclick="fecharModal('modal-ficha')">VOLTAR</button>
-    </div></div>
-
-    <script>
-    // Carregamento de Dados
-    let personagens = JSON.parse(localStorage.getItem('rpg_v6_total')) || [];
-    let magias = JSON.parse(localStorage.getItem('rpg_v6_mags')) || [];
-    let talentos = JSON.parse(localStorage.getItem('rpg_v6_talentos')) || [];
-    let habilidades = JSON.parse(localStorage.getItem('rpg_v6_habs')) || [];
-
-    function toggle(id) {
-        const div = document.getElementById(id);
-        const status = div.style.display;
-        document.querySelectorAll('.conteudo').forEach(d => d.style.display = 'none');
-        div.style.display = status === "block" ? "none" : "block";
-    }
-
-    function fecharModal(id) { document.getElementById(id).style.display = 'none'; }
-
-    function getMod(val) {
-        let m = Math.floor((val - 10) / 2);
-        return (m >= 0 ? "+" : "") + m;
-    }
-
-    function converterImagem() {
-        const file = document.getElementById('char-img-input').files[0];
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            const img = new Image();
-            img.src = e.target.result;
-            img.onload = function() {
-                const canvas = document.createElement('canvas');
-                const ctx = canvas.getContext('2d');
-                canvas.width = 200; 
-                canvas.height = 200;
-                ctx.drawImage(img, 0, 0, 200, 200);
-                document.getElementById('char-img-base64').value = canvas.toDataURL('image/jpeg', 0.7);
-            }
-        }
-        if(file) reader.readAsDataURL(file);
-    }
-
-    function salvarPersonagem() {
-        const idx = parseInt(document.getElementById('edit-index').value);
-        const p = {
-            nome: document.getElementById('char-nome').value || "Sem Nome",
-            classe: document.getElementById('char-classe').value || "Indefinida",
-            nivel: document.getElementById('char-nivel').value || 1,
-            xp: document.getElementById('char-xp').value || 0,
-            pv: document.getElementById('char-pv').value || 10,
-            ca: document.getElementById('char-ca').value || 10,
-            ac: document.getElementById('char-ac').value || "",
-            arma: document.getElementById('char-arma').value || "",
-            armadura: document.getElementById('char-armadura').value || "",
-            inventario: document.getElementById('char-inventario').value || "",
-            imagem: document.getElementById('char-img-base64').value,
-            for: document.getElementById('for').value, 
-            des: document.getElementById('des').value,
-            con: document.getElementById('con').value, 
-            int: document.getElementById('int').value,
-            sab: document.getElementById('sab').value, 
-            car: document.getElementById('car').value,
-            grimorio: (idx !== -1 && personagens[idx]) ? (personagens[idx].grimorio || []) : [],
-            talentos: (idx !== -1 && personagens[idx]) ? (personagens[idx].talentos || []) : [],
-            habilidades: (idx !== -1 && personagens[idx]) ? (personagens[idx].habilidades || []) : []
-        };
-        if (idx !== -1 && !p.imagem && personagens[idx]) p.imagem = personagens[idx].imagem;
-        try {
-            if (idx === -1) personagens.push(p);
-            else personagens[idx] = p;
-            localStorage.setItem('rpg_v6_total', JSON.stringify(personagens));
-            alert("Personagem salvo!");
-            location.reload();
-        } catch (e) { alert("Erro: Memória cheia."); }
-    }
-
-    function renderListaPers() {
-        document.getElementById('container-lista-pers').innerHTML = personagens.map((p, i) => `
-            <div class="card-item">
-                <div onclick="abrirFicha(${i})" style="cursor:pointer"><b>${p.nome}</b><br><small>Nv ${p.nivel} - XP: ${p.xp}</small></div>
-                <div class="actions-btns"><button onclick="excluirPers(${i})" style="color:#ff4d4d">✖</button></div>
-            </div>
-        `).join("");
-    }
-
-    function excluirPers(i) { if(confirm("Excluir?")) { personagens.splice(i, 1); localStorage.setItem('rpg_v6_total', JSON.stringify(personagens)); renderListaPers(); } }
-
-    function editarPers(i) {
-        const p = personagens[i];
-        document.getElementById('edit-index').value = i;
-        document.getElementById('char-nome').value = p.nome;
-        document.getElementById('char-classe').value = p.classe;
-        document.getElementById('char-nivel').value = p.nivel;
-        document.getElementById('char-xp').value = p.xp;
-        document.getElementById('char-pv').value = p.pv;
-        document.getElementById('char-ca').value = p.ca;
-        document.getElementById('char-ac').value = p.ac;
-        document.getElementById('char-arma').value = p.arma;
-        document.getElementById('char-armadura').value = p.armadura;
-        document.getElementById('char-inventario').value = p.inventario;
-        document.getElementById('for').value = p.for; document.getElementById('des').value = p.des;
-        document.getElementById('con').value = p.con; document.getElementById('int').value = p.int;
-        document.getElementById('sab').value = p.sab; document.getElementById('car').value = p.car;
-        fecharModal('modal-ficha'); toggle('criar-ficha');
-    }
-
-    function salvarMagia() {
-        magias.push({ nome: document.getElementById('mag-nome').value, nivel: document.getElementById('mag-nivel').value, acao: document.getElementById('mag-acao').value, desc: document.getElementById('mag-desc').value });
-        localStorage.setItem('rpg_v6_mags', JSON.stringify(magias));
-        renderListaMagias(); toggle('lista-magias');
-    }
-
-    function renderListaMagias() {
-        document.getElementById('container-lista-magias').innerHTML = magias.map((m, i) => `<div class="card-item"><div><b>${m.nome}</b> (Nv ${m.nivel})</div><button onclick="abrirSeletorMagia(${i})" style="background:#bc13fe; border:none; padding:5px; border-radius:4px; color:#fff; cursor:pointer;">✚ Add</button></div>`).join("");
-    }
-
-    function abrirSeletorMagia(mIdx) {
-        document.getElementById('lista-opcoes-pers').innerHTML = personagens.map((p, pIdx) => `<button class="btn-salvar" style="background:#1a052d; border:1px solid #bc13fe" onclick="vincularMagia(${mIdx}, ${pIdx})">${p.nome}</button>`).join("");
-        document.getElementById('modal-seletor').style.display = 'block';
-    }
-
-    function vincularMagia(mIdx, pIdx) {
-        if(!personagens[pIdx].grimorio) personagens[pIdx].grimorio = [];
-        personagens[pIdx].grimorio.push(magias[mIdx]);
-        localStorage.setItem('rpg_v6_total', JSON.stringify(personagens));
-        fecharModal('modal-seletor'); alert("Adicionado!");
-    }
-
-    function salvarTalento() {
-        talentos.push({ nome: document.getElementById('tal-nome').value, req: document.getElementById('tal-req').value, desc: document.getElementById('tal-desc').value });
-        localStorage.setItem('rpg_v6_talentos', JSON.stringify(talentos));
-        renderListaTalentos(); toggle('lista-talentos');
-    }
-
-    function renderListaTalentos() {
-        document.getElementById('container-lista-talentos').innerHTML = talentos.map((t, i) => `<div class="card-item"><div><b>${t.nome}</b></div><button onclick="abrirSeletorTalento(${i})" style="background:#bc13fe; border:none; padding:5px; border-radius:4px; color:#fff; cursor:pointer;">✚ Add</button></div>`).join("");
-    }
-
-    function abrirSeletorTalento(tIdx) {
-        document.getElementById('lista-opcoes-pers-talento').innerHTML = personagens.map((p, pIdx) => `<button class="btn-salvar" style="background:#1a052d; border:1px solid #bc13fe" onclick="vincularTalento(${tIdx}, ${pIdx})">${p.nome}</button>`).join("");
-        document.getElementById('modal-seletor-talento').style.display = 'block';
-    }
-
-    function vincularTalento(tIdx, pIdx) {
-        if(!personagens[pIdx].talentos) personagens[pIdx].talentos = [];
-        personagens[pIdx].talentos.push(talentos[tIdx]);
-        localStorage.setItem('rpg_v6_total', JSON.stringify(personagens));
-        fecharModal('modal-seletor-talento'); alert("Adicionado!");
-    }
-
-    function salvarHabilidade() {
-        habilidades.push({ nome: document.getElementById('hab-nome').value, tipo: document.getElementById('hab-tipo').value, desc: document.getElementById('hab-desc').value });
-        localStorage.setItem('rpg_v6_habs', JSON.stringify(habilidades));
-        renderListaHabilidades(); toggle('lista-habilidades');
-    }
-
-    function renderListaHabilidades() {
-        document.getElementById('container-lista-habilidades').innerHTML = habilidades.map((h, i) => `<div class="card-item"><div><b>${h.nome}</b></div><button onclick="abrirSeletorHabilidade(${i})" style="background:#bc13fe; border:none; padding:5px; border-radius:4px; color:#fff; cursor:pointer;">✚ Add</button></div>`).join("");
-    }
-
-    function abrirSeletorHabilidade(hIdx) {
-        document.getElementById('lista-opcoes-pers-habilidade').innerHTML = personagens.map((p, pIdx) => `<button class="btn-salvar" style="background:#1a052d; border:1px solid #bc13fe" onclick="vincularHabilidade(${hIdx}, ${pIdx})">${p.nome}</button>`).join("");
-        document.getElementById('modal-seletor-habilidade').style.display = 'block';
-    }
-
-    function vincularHabilidade(hIdx, pIdx) {
-        if(!personagens[pIdx].habilidades) personagens[pIdx].habilidades = [];
-        personagens[pIdx].habilidades.push(habilidades[hIdx]);
-        localStorage.setItem('rpg_v6_total', JSON.stringify(personagens));
-        fecharModal('modal-seletor-habilidade'); alert("Adicionado!");
-    }
-
-    // FUNÇÃO CORRIGIDA: Adicionado o onclick para exibir a descrição via alert
-    function abrirFicha(i) {
-        const p = personagens[i];
-        document.getElementById('btn-edit-na-ficha').onclick = () => editarPers(i);
-        document.getElementById('conteudo-ficha-detalhada').innerHTML = `
-            <div class="dnd-header">
-                <img src="${p.imagem || ''}" class="char-img-ficha">
-                <div><small>NOME / XP: ${p.xp}</small><br><b>${p.nome}</b></div>
-                <div style="text-align:right"><small>${p.classe.toUpperCase()}</small><br><b>NV ${p.nivel}</b></div>
-            </div>
-            <div style="display:flex; gap:15px;">
-                <div class="dnd-attr-col">
-                    ${['FOR', 'DES', 'CON', 'INT', 'SAB', 'CAR'].map(a => `<div class="dnd-attr-box"><label>${a}</label><div class="dnd-attr-mod">${getMod(p[a.toLowerCase()])}</div><small>${p[a.toLowerCase()]}</small></div>`).join("")}
-                </div>
-                <div style="flex:1">
-                    <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; border:1px solid #000; padding:10px; text-align:center; margin-bottom:10px;">
-                        <div><small>CA</small><br><b>${p.ca}</b></div>
-                        <div><small>AC</small><br><b>${p.ac || '--'}</b></div>
-                        <div><small>PV</small><br><b>${p.pv}</b></div>
-                    </div>
-                    <div style="font-size:12px; border:1px solid #000; padding:8px; margin-bottom:10px;">
-                        <b>ARMA:</b> ${p.arma || 'Nenhuma'}<br>
-                        <b>ARMADURA:</b> ${p.armadura || 'Nenhuma'}<br>
-                        <b>INVENTÁRIO:</b> ${p.inventario || 'Vazio'}
-                    </div>
-                    <h4 style="border-bottom:1px solid #000; margin:5px 0">HABILIDADES / TALENTOS</h4>
-                    ${(p.habilidades || []).map((h, hi) => `<div class="item-in-sheet"><span onclick="alert('Descrição: ${h.desc ? h.desc.replace(/'/g, "\\'") : 'Sem descrição'}')" style="cursor:pointer; color:blue">⚔️ ${h.nome}</span><span class="item-remove" onclick="removerHabilidade(${i}, ${hi})">✖</span></div>`).join("")}
-                    ${(p.talentos || []).map((t, ti) => `<div class="item-in-sheet"><span onclick="alert('Descrição: ${t.desc ? t.desc.replace(/'/g, "\\'") : 'Sem descrição'}')" style="cursor:pointer; color:blue">📜 ${t.nome}</span><span class="item-remove" onclick="removerTalento(${i}, ${ti})">✖</span></div>`).join("")}
-                    <h4 style="border-bottom:1px solid #000; margin:5px 0; margin-top:10px;">GRIMÓRIO</h4>
-                    ${(p.grimorio || []).map((m, mi) => `<div class="item-in-sheet"><span onclick="alert('Descrição: ${m.desc ? m.desc.replace(/'/g, "\\'") : 'Sem descrição'}')" style="cursor:pointer; color:blue">✨ ${m.nome}</span><span class="item-remove" onclick="removerMagia(${i}, ${mi})">✖</span></div>`).join("")}
-                </div>
-            </div>
-        `;
-        document.getElementById('modal-ficha').style.display = 'block';
-    }
-
-    function removerMagia(pIdx, mIdx) { if(confirm("Remover?")) { personagens[pIdx].grimorio.splice(mIdx, 1); localStorage.setItem('rpg_v6_total', JSON.stringify(personagens)); abrirFicha(pIdx); } }
-    function removerTalento(pIdx, tIdx) { if(confirm("Remover?")) { personagens[pIdx].talentos.splice(tIdx, 1); localStorage.setItem('rpg_v6_total', JSON.stringify(personagens)); abrirFicha(pIdx); } }
-    function removerHabilidade(pIdx, hIdx) { if(confirm("Remover?")) { personagens[pIdx].habilidades.splice(hIdx, 1); localStorage.setItem('rpg_v6_total', JSON.stringify(personagens)); abrirFicha(pIdx); } }
-
-    renderListaPers(); renderListaMagias(); renderListaTalentos(); renderListaHabilidades();
-</script>
-</body>
+    <script src="dnd2024-spells.js?v=1"></script>
+    <script src="app.js?v=4"></script>
+  </body>
 </html>
