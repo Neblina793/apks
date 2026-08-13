@@ -1,0 +1,1119 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Natasha Variedades — Painel de Gestão</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,700;0,900;1,600&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --wine:#6b2545;
+    --wine-dark:#3d1226;
+    --wine-light:#8a3560;
+    --gold:#c9a227;
+    --gold-light:#e8cf7d;
+    --rose:#e8b4bc;
+    --cream:#fbf3e7;
+    --paper:#fffaf3;
+    --text:#2b1620;
+    --muted:#8a6b74;
+    --success:#3f7d5c;
+    --success-bg:#e4f2ea;
+    --danger:#b23a48;
+    --danger-bg:#fbe6e8;
+    --radius:14px;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    font-family:'Poppins',sans-serif;
+    background:
+      radial-gradient(circle at 15% 0%, rgba(201,162,39,0.08), transparent 40%),
+      radial-gradient(circle at 100% 20%, rgba(107,37,69,0.06), transparent 45%),
+      var(--cream);
+    color:var(--text);
+    min-height:100vh;
+  }
+  h1,h2,h3{font-family:'Playfair Display',serif;margin:0;}
+  button{font-family:'Poppins',sans-serif;cursor:pointer;border:none;}
+  input,select,textarea{font-family:'Poppins',sans-serif;}
+  .hidden{display:none !important;}
+
+  /* ---------- INTRO ---------- */
+  #intro{
+    position:fixed;inset:0;z-index:999;
+    background:radial-gradient(circle at 50% 40%, var(--wine-light) 0%, var(--wine) 45%, var(--wine-dark) 100%);
+    display:flex;align-items:center;justify-content:center;flex-direction:column;
+    overflow:hidden;
+  }
+  #intro .petal{
+    position:absolute;width:10px;height:10px;border-radius:50% 0 50% 50%;
+    background:var(--gold-light);opacity:0.55;
+    animation:fall linear infinite;
+  }
+  @keyframes fall{
+    0%{transform:translateY(-10vh) rotate(0deg);opacity:0;}
+    10%{opacity:.6;}
+    100%{transform:translateY(110vh) rotate(300deg);opacity:0;}
+  }
+  .intro-title{
+    display:flex;flex-wrap:wrap;justify-content:center;gap:.15em;
+    font-family:'Playfair Display',serif;font-weight:900;
+    font-size:clamp(2.2rem,7vw,5rem);color:var(--cream);
+    letter-spacing:.05em;text-align:center;padding:0 1rem;
+  }
+  .intro-title span{
+    display:inline-block;opacity:0;transform:translateY(30px) scale(.85);
+    animation:letterIn .7s cubic-bezier(.2,.8,.2,1) forwards;
+    text-shadow:0 4px 24px rgba(0,0,0,.35);
+  }
+  @keyframes letterIn{to{opacity:1;transform:translateY(0) scale(1);}}
+  .intro-sub{
+    font-size:clamp(.85rem,2vw,1.1rem);letter-spacing:.5em;color:var(--gold-light);
+    margin-top:1rem;text-transform:uppercase;opacity:0;
+    animation:fadeUp 1s ease forwards;animation-delay:1.6s;
+  }
+  @keyframes fadeUp{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
+  .intro-line{
+    width:0;height:2px;background:linear-gradient(90deg,transparent,var(--gold),transparent);
+    margin-top:1.4rem;animation:lineGrow 1.2s ease forwards;animation-delay:1.9s;
+  }
+  @keyframes lineGrow{to{width:min(70vw,420px);}}
+  #intro.fade-out{animation:fadeOutIntro .8s ease forwards;}
+  @keyframes fadeOutIntro{to{opacity:0;visibility:hidden;}}
+  #intro-skip{
+    position:absolute;bottom:28px;background:transparent;color:var(--rose);
+    border:1px solid rgba(232,180,188,.5);padding:8px 18px;border-radius:30px;
+    font-size:.8rem;letter-spacing:.1em;opacity:0;animation:fadeUp .6s ease forwards;animation-delay:2.4s;
+  }
+  #intro-skip:hover{background:rgba(255,255,255,.08);}
+
+  /* ---------- APP SHELL ---------- */
+  #app{opacity:0;transition:opacity .5s ease;}
+  #app.show{opacity:1;}
+
+  header.topbar{
+    background:linear-gradient(120deg,var(--wine-dark),var(--wine));
+    color:var(--cream);padding:18px 28px;display:flex;align-items:center;justify-content:space-between;
+    flex-wrap:wrap;gap:12px;position:sticky;top:0;z-index:50;box-shadow:0 4px 18px rgba(61,18,38,.25);
+  }
+  .brand{font-family:'Playfair Display',serif;font-weight:700;font-size:1.35rem;letter-spacing:.04em;}
+  .brand span{color:var(--gold-light);font-weight:900;}
+  nav.tabs{display:flex;gap:8px;background:rgba(0,0,0,.15);padding:5px;border-radius:30px;}
+  nav.tabs button{
+    background:transparent;color:var(--rose);padding:8px 18px;border-radius:24px;
+    font-size:.85rem;letter-spacing:.03em;transition:.25s;
+  }
+  nav.tabs button.active{background:var(--gold);color:var(--wine-dark);font-weight:600;}
+
+  .banner{
+    background:var(--danger-bg);color:var(--danger);border-bottom:1px solid #f0c2c7;
+    padding:10px 28px;font-size:.85rem;display:flex;gap:10px;align-items:center;flex-wrap:wrap;
+  }
+  .banner b{font-weight:700;}
+  .banner .tag{background:var(--danger);color:#fff;padding:2px 10px;border-radius:20px;font-size:.75rem;}
+
+  main.view{display:none;padding:26px 28px 60px;max-width:1200px;margin:0 auto;}
+  main.view.active{display:block;}
+
+  .stats-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:16px;margin-bottom:30px;}
+  .stat-card{
+    background:var(--paper);border-radius:var(--radius);padding:18px 20px;
+    box-shadow:0 3px 14px rgba(107,37,69,.08);border:1px solid #f0e2ce;
+    display:flex;flex-direction:column;justify-content:center;gap:6px;position:relative;
+  }
+  .stat-card.clickable{cursor:pointer;transition:.2s;}
+  .stat-card.clickable:hover{transform:translateY(-2px);box-shadow:0 8px 22px rgba(107,37,69,.14);}
+  .stat-card .label{font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);}
+  .stat-card .value{font-family:'Playfair Display',serif;font-size:1.6rem;font-weight:700;color:var(--wine);}
+  .stat-card.action-card{align-items:center;justify-content:center;}
+  .btn{
+    background:var(--wine);color:#fff;padding:11px 20px;border-radius:30px;font-size:.85rem;
+    font-weight:500;letter-spacing:.02em;transition:.2s;
+  }
+  .btn:hover{background:var(--wine-dark);}
+  .btn.gold{background:var(--gold);color:var(--wine-dark);font-weight:600;}
+  .btn.gold:hover{background:var(--gold-light);}
+  .btn.outline{background:transparent;border:1px solid var(--wine);color:var(--wine);}
+  .btn.outline:hover{background:var(--wine);color:#fff;}
+  .btn.small{padding:6px 14px;font-size:.75rem;}
+  .btn.danger{background:var(--danger);color:#fff;}
+  .btn.danger:hover{background:#8f2933;}
+  .btn.success{background:var(--success);color:#fff;}
+  .btn:disabled{opacity:.45;cursor:not-allowed;}
+
+  h2.section-title{font-size:1.3rem;color:var(--wine);margin:10px 0 16px;position:relative;padding-left:16px;}
+  h2.section-title::before{content:"";position:absolute;left:0;top:4px;bottom:4px;width:4px;background:var(--gold);border-radius:4px;}
+
+  .cat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:16px;}
+  .cat-card{
+    background:var(--paper);border:1px solid #f0e2ce;border-radius:var(--radius);
+    padding:22px 16px;text-align:center;cursor:pointer;transition:.2s;box-shadow:0 3px 10px rgba(107,37,69,.06);
+  }
+  .cat-card:hover{transform:translateY(-3px);box-shadow:0 10px 22px rgba(107,37,69,.15);border-color:var(--gold);}
+  .cat-card .icon{font-size:2rem;margin-bottom:8px;}
+  .cat-card .name{font-weight:600;color:var(--wine);}
+  .cat-card .count{font-size:.75rem;color:var(--muted);margin-top:4px;}
+
+  /* ---------- MODAL ---------- */
+  .modal-overlay{
+    position:fixed;inset:0;background:rgba(43,22,32,.55);backdrop-filter:blur(2px);
+    display:flex;align-items:flex-start;justify-content:center;z-index:200;padding:40px 16px;overflow-y:auto;
+  }
+  .modal{
+    background:var(--paper);border-radius:18px;width:100%;max-width:640px;
+    box-shadow:0 20px 60px rgba(0,0,0,.3);animation:modalIn .25s ease;overflow:hidden;
+  }
+  @keyframes modalIn{from{opacity:0;transform:translateY(14px) scale(.98);}to{opacity:1;transform:translateY(0) scale(1);}}
+  .modal-header{
+    background:linear-gradient(120deg,var(--wine-dark),var(--wine));color:#fff;
+    padding:16px 22px;display:flex;justify-content:space-between;align-items:center;
+  }
+  .modal-header h3{font-size:1.15rem;}
+  .modal-header button{background:transparent;color:var(--rose);font-size:1.4rem;line-height:1;}
+  .modal-body{padding:20px 22px;max-height:65vh;overflow-y:auto;}
+  .modal-footer{padding:14px 22px;border-top:1px solid #f0e2ce;display:flex;justify-content:flex-end;gap:10px;flex-wrap:wrap;}
+
+  .field{margin-bottom:14px;}
+  .field label{display:block;font-size:.75rem;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);margin-bottom:5px;}
+  .field input,.field select,.field textarea{
+    width:100%;padding:10px 12px;border:1px solid #e5d3bd;border-radius:9px;font-size:.9rem;background:#fff;color:var(--text);
+  }
+  .field input:focus,.field select:focus,.field textarea:focus{outline:2px solid var(--gold);border-color:var(--gold);}
+  .field-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+
+  .list-row{
+    display:flex;justify-content:space-between;align-items:center;gap:10px;
+    padding:12px 14px;border:1px solid #f0e2ce;border-radius:10px;margin-bottom:10px;background:#fff;
+  }
+  .list-row .info b{color:var(--wine);}
+  .list-row .info .sub{font-size:.78rem;color:var(--muted);}
+  .row-actions{display:flex;gap:6px;flex-shrink:0;}
+
+  .empty-msg{color:var(--muted);font-size:.88rem;padding:18px 4px;text-align:center;font-style:italic;}
+
+  .badge{display:inline-block;padding:2px 10px;border-radius:20px;font-size:.7rem;font-weight:600;letter-spacing:.03em;}
+  .badge.due{background:var(--danger-bg);color:var(--danger);}
+  .badge.ok{background:var(--success-bg);color:var(--success);}
+  .badge.gold{background:#fbeec1;color:#8a6b16;}
+
+  .toggle-group{display:flex;gap:8px;}
+  .toggle-group button{
+    flex:1;padding:10px;border-radius:9px;border:1px solid #e5d3bd;background:#fff;color:var(--muted);font-size:.85rem;
+  }
+  .toggle-group button.active{background:var(--wine);border-color:var(--wine);color:#fff;font-weight:600;}
+
+  .breadcrumb{font-size:.78rem;color:var(--muted);margin-bottom:12px;}
+  .breadcrumb b{color:var(--wine);}
+
+  .cart-box{background:#fbf3e7;border:1px dashed var(--gold);border-radius:12px;padding:14px;margin-top:16px;}
+  .cart-item{display:flex;justify-content:space-between;align-items:center;font-size:.85rem;padding:6px 0;border-bottom:1px solid #ecd9bc;}
+  .cart-item:last-child{border-bottom:none;}
+  .cart-total{display:flex;justify-content:space-between;font-weight:700;color:var(--wine);margin-top:8px;padding-top:8px;border-top:1px solid var(--gold);}
+
+  .toast{
+    position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);
+    background:var(--wine-dark);color:#fff;padding:12px 22px;border-radius:30px;font-size:.85rem;
+    box-shadow:0 8px 24px rgba(0,0,0,.25);opacity:0;transition:.3s;z-index:400;pointer-events:none;
+  }
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+  .analise-card{background:#fff;border:1px solid #f0e2ce;border-radius:12px;padding:14px 16px;margin-bottom:12px;}
+  .analise-card .top{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:center;}
+  .analise-card .details{font-size:.8rem;color:var(--muted);margin-top:6px;line-height:1.6;}
+  .analise-card select.status-select{width:auto;padding:6px 10px;font-size:.78rem;}
+
+  @media(max-width:640px){
+    header.topbar{padding:14px 16px;}
+    main.view{padding:18px 14px 50px;}
+    .field-row{grid-template-columns:1fr;}
+  }
+</style>
+</head>
+<body>
+
+<!-- ================= INTRO ================= -->
+<div id="intro">
+  <div id="petals"></div>
+  <div class="intro-title" id="intro-title"></div>
+  <div class="intro-sub">Multifunções da Vendedora</div>
+  <div class="intro-line"></div>
+  <button id="intro-skip" onclick="skipIntro()">entrar no painel ›</button>
+</div>
+
+<!-- ================= APP ================= -->
+<div id="app">
+  <header class="topbar">
+    <div class="brand">NATASHA <span>VARIEDADES</span></div>
+    <nav class="tabs">
+      <button class="tab active" data-view="loja" onclick="switchView('loja')">Loja</button>
+      <button class="tab" data-view="analise" onclick="switchView('analise')">Análise MacTech</button>
+    </nav>
+  </header>
+
+  <div id="banner-overdue" class="banner hidden"></div>
+
+  <!-- ---------- VIEW LOJA ---------- -->
+  <main id="view-loja" class="view active">
+    <section class="stats-row">
+      <div class="stat-card clickable" onclick="openHistoricoVendas()">
+        <span class="label">Saldo em caixa</span>
+        <span class="value" id="saldo-value">R$ 0,00</span>
+        <button class="btn small gold" style="align-self:flex-start;margin-top:4px;" onclick="event.stopPropagation();openRetirada()">Retirar</button>
+      </div>
+      <div class="stat-card clickable" onclick="openReceberModal()">
+        <span class="label">Valor a receber (a prazo)</span>
+        <span class="value" id="receber-value">R$ 0,00</span>
+      </div>
+      <div class="stat-card action-card">
+        <button class="btn gold" onclick="openNovaVenda()">＋ Nova Venda</button>
+      </div>
+      <div class="stat-card action-card">
+        <button class="btn outline" onclick="openClientsWallet()">🗂 Carteira de Clientes</button>
+      </div>
+    </section>
+
+    <h2 class="section-title">Mercadorias por categoria</h2>
+    <div class="cat-grid" id="cat-grid"></div>
+  </main>
+
+  <!-- ---------- VIEW ANALISE ---------- -->
+  <main id="view-analise" class="view">
+    <section class="stats-row">
+      <div class="stat-card clickable" onclick="openComissaoHistorico()">
+        <span class="label">Comissão MacTech</span>
+        <span class="value" id="comissao-value">R$ 0,00</span>
+      </div>
+      <div class="stat-card action-card">
+        <button class="btn gold" onclick="openAnaliseForm()">＋ Cadastrar Cliente p/ Análise</button>
+      </div>
+      <div class="stat-card action-card">
+        <button class="btn outline" onclick="retirarComissao()">Retirar Comissão</button>
+      </div>
+    </section>
+
+    <h2 class="section-title">Em análise</h2>
+    <div id="lista-analise"></div>
+
+    <h2 class="section-title">Aprovados</h2>
+    <div id="lista-aprovados"></div>
+
+    <h2 class="section-title">Reprovados</h2>
+    <div id="lista-reprovados"></div>
+  </main>
+</div>
+
+<!-- ================= MODAL ================= -->
+<div class="modal-overlay hidden" id="modal-overlay">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 id="modal-title">Título</h3>
+      <button onclick="closeModal()">&times;</button>
+    </div>
+    <div class="modal-body" id="modal-body"></div>
+    <div class="modal-footer" id="modal-footer"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* =========================================================
+   NATASHA VARIEDADES — painel de gestão (arquivo único)
+   Persistência: window.storage (com fallback em memória)
+   ========================================================= */
+
+const CATEGORIES = [
+  {key:'lingerie', label:'Lingerie', icon:'🎀'},
+  {key:'roupas', label:'Roupas', icon:'👗'},
+  {key:'biscoito', label:'Biscoitos', icon:'🍪'},
+  {key:'doce', label:'Doces', icon:'🍬'},
+  {key:'perfumes', label:'Perfumes', icon:'🌸'},
+  {key:'maquiagens', label:'Maquiagens', icon:'💄'},
+  {key:'variedade', label:'Variedades', icon:'🛍️'}
+];
+
+let state = {
+  products: {lingerie:[],roupas:[],biscoito:[],doce:[],perfumes:[],maquiagens:[],variedade:[]},
+  clients: [],
+  sales: [],
+  saldo: 0,
+  analiseClients: [],
+  comissao: {total:0, history:[]}
+};
+
+let storageOK = true;
+
+function uid(){ return 'id'+Date.now().toString(36)+Math.random().toString(36).slice(2,8); }
+function esc(s){ return (s===undefined||s===null?'':String(s)).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/'/g,'&#39;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function fmtMoney(n){ return (Number(n)||0).toLocaleString('pt-BR',{style:'currency',currency:'BRL'}); }
+function fmtDate(d){ if(!d) return '—'; const dt = new Date(d+'T00:00:00'); if(isNaN(dt)) { const dt2=new Date(d); return isNaN(dt2)?'—':dt2.toLocaleDateString('pt-BR'); } return dt.toLocaleDateString('pt-BR'); }
+function todayISO(){ return new Date().toISOString().slice(0,10); }
+function daysBetween(a,b){ return Math.floor((b-a)/86400000); }
+
+function showToast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), 2400);
+}
+
+/* ---------- storage ---------- */
+async function loadState(){
+  const keys = ['products','clients','sales','saldo','analiseClients','comissao'];
+  for(const k of keys){
+    try{
+      const r = await window.storage.get(k, false);
+      if(r && r.value !== undefined){
+        state[k] = JSON.parse(r.value);
+      }
+    }catch(e){ /* chave ainda não existe ou storage indisponível — mantém padrão */ }
+  }
+}
+async function persist(key){
+  try{
+    const r = await window.storage.set(key, JSON.stringify(state[key]), false);
+    if(!r) storageOK = false;
+  }catch(e){
+    storageOK = false;
+  }
+}
+
+/* ---------- modal helpers ---------- */
+function openModal(title, bodyHtml, footerHtml){
+  document.getElementById('modal-title').textContent = title;
+  document.getElementById('modal-body').innerHTML = bodyHtml;
+  document.getElementById('modal-footer').innerHTML = footerHtml || '';
+  document.getElementById('modal-overlay').classList.remove('hidden');
+}
+function closeModal(){
+  document.getElementById('modal-overlay').classList.add('hidden');
+}
+document.getElementById('modal-overlay').addEventListener('click', e=>{
+  if(e.target.id === 'modal-overlay') closeModal();
+});
+
+/* ---------- view switch ---------- */
+function switchView(view){
+  document.querySelectorAll('main.view').forEach(v=>v.classList.remove('active'));
+  document.getElementById('view-'+view).classList.add('active');
+  document.querySelectorAll('nav.tabs button').forEach(b=>b.classList.toggle('active', b.dataset.view===view));
+}
+
+/* =========================================================
+   RENDER — TOP BAR / ALERTAS
+   ========================================================= */
+function renderTopBar(){
+  document.getElementById('saldo-value').textContent = fmtMoney(state.saldo);
+
+  let receber = 0;
+  state.clients.forEach(c=> (c.purchases||[]).forEach(p=>{
+    if(p.type==='prazo' && !p.paid) receber += p.total;
+  }));
+  document.getElementById('receber-value').textContent = fmtMoney(receber);
+
+  document.getElementById('comissao-value').textContent = fmtMoney(state.comissao.total);
+
+  renderOverdueBanner();
+}
+
+function renderOverdueBanner(){
+  const banner = document.getElementById('banner-overdue');
+  const today = new Date(todayISO()+'T00:00:00');
+  const overdue = [];
+  state.clients.forEach(c=>{
+    (c.purchases||[]).forEach(p=>{
+      if(p.type==='prazo' && !p.paid && p.dueDate){
+        const due = new Date(p.dueDate+'T00:00:00');
+        if(due < today){
+          overdue.push({name:c.nome, days: daysBetween(due, today)});
+        }
+      }
+    });
+  });
+  if(overdue.length===0){
+    banner.classList.add('hidden');
+    banner.innerHTML='';
+    return;
+  }
+  banner.classList.remove('hidden');
+  banner.innerHTML = '⚠️ <b>Pagamentos vencidos:</b> ' + overdue.map(o=>
+    `${esc(o.name)} <span class="tag">${o.days} dia${o.days===1?'':'s'} em atraso</span>`
+  ).join(' &nbsp;|&nbsp; ');
+}
+
+/* =========================================================
+   CATEGORIAS / MERCADORIAS
+   ========================================================= */
+function renderCategoryGrid(){
+  const grid = document.getElementById('cat-grid');
+  grid.innerHTML = CATEGORIES.map(c=>{
+    const count = (state.products[c.key]||[]).length;
+    return `<div class="cat-card" onclick="openCategoryManage('${c.key}')">
+      <div class="icon">${c.icon}</div>
+      <div class="name">${c.label}</div>
+      <div class="count">${count} item${count===1?'':'s'}</div>
+    </div>`;
+  }).join('');
+}
+
+function openCategoryManage(catKey){
+  renderCategoryModal(catKey);
+}
+
+function renderCategoryModal(catKey){
+  const cat = CATEGORIES.find(c=>c.key===catKey);
+  const items = state.products[catKey]||[];
+  let body = `<button class="btn gold" style="margin-bottom:14px;" onclick="renderProductForm('${catKey}')">＋ Novo produto</button>`;
+  if(items.length===0){
+    body += `<div class="empty-msg">Nenhum produto cadastrado em ${esc(cat.label)} ainda.</div>`;
+  } else {
+    body += items.map(p=>`
+      <div class="list-row">
+        <div class="info">
+          <b>${esc(p.nome)}</b>
+          <div class="sub">${esc(p.descricao||'')}</div>
+          <div class="sub">À vista: ${fmtMoney(p.vista)} &nbsp;•&nbsp; A prazo: ${fmtMoney(p.prazo)}</div>
+        </div>
+        <div class="row-actions">
+          <button class="btn small outline" onclick="renderProductForm('${catKey}','${p.id}')">Editar</button>
+          <button class="btn small danger" onclick="removeProduct('${catKey}','${p.id}')">Remover</button>
+        </div>
+      </div>`).join('');
+  }
+  openModal(cat.icon+' '+cat.label, body, `<button class="btn outline" onclick="closeModal()">Fechar</button>`);
+}
+
+function renderProductForm(catKey, productId){
+  const cat = CATEGORIES.find(c=>c.key===catKey);
+  const existing = productId ? (state.products[catKey]||[]).find(p=>p.id===productId) : null;
+  const body = `
+    <div class="field"><label>Nome do produto</label>
+      <input id="pf-nome" value="${existing?esc(existing.nome):''}" placeholder="Ex: Sutiã renda modelo Bella"></div>
+    <div class="field"><label>Descrição</label>
+      <textarea id="pf-desc" rows="2" placeholder="Detalhes, cor, tamanho...">${existing?esc(existing.descricao):''}</textarea></div>
+    <div class="field-row">
+      <div class="field"><label>Valor à vista (R$)</label>
+        <input id="pf-vista" type="number" step="0.01" min="0" value="${existing?existing.vista:''}"></div>
+      <div class="field"><label>Valor a prazo (R$)</label>
+        <input id="pf-prazo" type="number" step="0.01" min="0" value="${existing?existing.prazo:''}"></div>
+    </div>`;
+  const footer = `
+    <button class="btn outline" onclick="renderCategoryModal('${catKey}')">Voltar</button>
+    <button class="btn gold" onclick="saveProduct('${catKey}'${existing?`,'${existing.id}'`:''})">Salvar</button>`;
+  openModal((existing?'Editar':'Novo')+' produto — '+cat.label, body, footer);
+}
+
+function saveProduct(catKey, productId){
+  const nome = document.getElementById('pf-nome').value.trim();
+  const descricao = document.getElementById('pf-desc').value.trim();
+  const vista = parseFloat(document.getElementById('pf-vista').value) || 0;
+  const prazo = parseFloat(document.getElementById('pf-prazo').value) || 0;
+  if(!nome){ showToast('Informe o nome do produto.'); return; }
+  if(!state.products[catKey]) state.products[catKey] = [];
+  if(productId){
+    const p = state.products[catKey].find(p=>p.id===productId);
+    Object.assign(p, {nome,descricao,vista,prazo});
+  } else {
+    state.products[catKey].push({id:uid(), nome, descricao, vista, prazo});
+  }
+  persist('products');
+  renderCategoryGrid();
+  renderCategoryModal(catKey);
+  showToast('Produto salvo.');
+}
+
+function removeProduct(catKey, productId){
+  if(!confirm('Remover este produto?')) return;
+  state.products[catKey] = (state.products[catKey]||[]).filter(p=>p.id!==productId);
+  persist('products');
+  renderCategoryGrid();
+  renderCategoryModal(catKey);
+  showToast('Produto removido.');
+}
+
+/* =========================================================
+   CARTEIRA DE CLIENTES
+   ========================================================= */
+function clientDevendo(c){
+  return (c.purchases||[]).some(p=>p.type==='prazo' && !p.paid);
+}
+
+function openClientsWallet(){
+  renderClientsWalletModal();
+}
+
+function renderClientsWalletModal(){
+  const devendo = state.clients.filter(clientDevendo);
+  const emDia = state.clients.filter(c=>!clientDevendo(c));
+
+  const rowHtml = c => `
+    <div class="list-row">
+      <div class="info" style="cursor:pointer" onclick="openClientDetail('${c.id}')">
+        <b>${esc(c.nome)}</b>
+        <div class="sub">${esc(c.telefone||'')}</div>
+      </div>
+      <div class="row-actions">
+        ${clientDevendo(c)?'<span class="badge due">Deve</span>':'<span class="badge ok">Em dia</span>'}
+        <button class="btn small outline" onclick="renderClientForm('${c.id}')">Editar</button>
+      </div>
+    </div>`;
+
+  const body = `
+    <button class="btn gold" style="margin-bottom:16px;" onclick="renderClientForm()">＋ Cadastrar cliente</button>
+    <h3 style="font-size:1rem;color:var(--danger);margin-bottom:8px;">Clientes que devem (${devendo.length})</h3>
+    ${devendo.length? devendo.map(rowHtml).join('') : '<div class="empty-msg">Nenhum cliente devendo.</div>'}
+    <h3 style="font-size:1rem;color:var(--success);margin:18px 0 8px;">Clientes em dia (${emDia.length})</h3>
+    ${emDia.length? emDia.map(rowHtml).join('') : '<div class="empty-msg">Nenhum cliente cadastrado.</div>'}
+  `;
+  openModal('🗂 Carteira de Clientes', body, `<button class="btn outline" onclick="closeModal()">Fechar</button>`);
+}
+
+function renderClientForm(clientId){
+  const existing = clientId ? state.clients.find(c=>c.id===clientId) : null;
+  const body = `
+    <div class="field"><label>Nome</label><input id="cf-nome" value="${existing?esc(existing.nome):''}"></div>
+    <div class="field"><label>CPF</label><input id="cf-cpf" value="${existing?esc(existing.cpf):''}"></div>
+    <div class="field"><label>Endereço</label><input id="cf-end" value="${existing?esc(existing.endereco):''}"></div>
+    <div class="field"><label>Telefone de contato</label><input id="cf-tel" value="${existing?esc(existing.telefone):''}"></div>
+  `;
+  const footer = `
+    <button class="btn outline" onclick="renderClientsWalletModal()">Voltar</button>
+    <button class="btn gold" onclick="saveClient(${existing?`'${existing.id}'`:'null'})">Salvar</button>`;
+  openModal((existing?'Editar':'Cadastrar')+' cliente', body, footer);
+}
+
+function saveClient(clientId){
+  const nome = document.getElementById('cf-nome').value.trim();
+  const cpf = document.getElementById('cf-cpf').value.trim();
+  const endereco = document.getElementById('cf-end').value.trim();
+  const telefone = document.getElementById('cf-tel').value.trim();
+  if(!nome){ showToast('Informe o nome do cliente.'); return; }
+  if(clientId){
+    const c = state.clients.find(c=>c.id===clientId);
+    Object.assign(c, {nome,cpf,endereco,telefone});
+  } else {
+    state.clients.push({id:uid(), nome, cpf, endereco, telefone, purchases:[]});
+  }
+  persist('clients');
+  renderClientsWalletModal();
+  showToast('Cliente salvo.');
+}
+
+function openClientDetail(clientId){
+  const c = state.clients.find(c=>c.id===clientId);
+  if(!c) return;
+  const purchases = (c.purchases||[]).slice().sort((a,b)=> new Date(b.date)-new Date(a.date));
+  const body = `
+    <div class="field"><b>CPF:</b> ${esc(c.cpf||'—')}</div>
+    <div class="field"><b>Endereço:</b> ${esc(c.endereco||'—')}</div>
+    <div class="field"><b>Telefone:</b> ${esc(c.telefone||'—')}</div>
+    <h3 style="font-size:1rem;color:var(--wine);margin:16px 0 8px;">Histórico de compras</h3>
+    ${purchases.length? purchases.map(p=>`
+      <div class="list-row" style="align-items:flex-start;">
+        <div class="info">
+          <b>${fmtDate(p.date.slice(0,10))} — ${fmtMoney(p.total)}</b>
+          <div class="sub">${p.items.map(i=>esc(i.nome)+' x'+i.qty).join(', ')}</div>
+          <div class="sub">${p.type==='vista' ? 'Pagamento à vista' : 'A prazo — vencimento '+fmtDate(p.dueDate)}</div>
+        </div>
+        <div class="row-actions">
+          ${p.type==='prazo' ? (p.paid
+            ? '<span class="badge ok">Paga</span>'
+            : `<span class="badge due">Deve</span><button class="btn small success" onclick="marcarPurchasePaga('${c.id}','${p.id}')">Conta paga</button>`)
+            : '<span class="badge ok">À vista</span>'}
+        </div>
+      </div>`).join('') : '<div class="empty-msg">Nenhuma compra registrada.</div>'}
+  `;
+  openModal('Cliente: '+c.nome, body, `<button class="btn outline" onclick="renderClientsWalletModal()">Voltar</button>`);
+}
+
+function marcarPurchasePaga(clientId, purchaseId){
+  const c = state.clients.find(c=>c.id===clientId);
+  const p = c.purchases.find(p=>p.id===purchaseId);
+  p.paid = true;
+  persist('clients');
+  renderTopBar();
+  openClientDetail(clientId);
+  showToast('Pagamento confirmado — cliente removido da lista de devedores (se não houver outras pendências).');
+}
+
+/* =========================================================
+   NOVA VENDA
+   ========================================================= */
+let saleFlow = {clientId:null, category:null, cart:[], paymentType:'vista', dueDate:null};
+
+function openNovaVenda(){
+  saleFlow = {clientId:null, category:null, cart:[], paymentType:'vista', dueDate:null};
+  renderSaleStepClient();
+}
+
+function renderSaleStepClient(){
+  if(state.clients.length===0){
+    openModal('Nova Venda', `<div class="empty-msg">Nenhum cliente cadastrado. Cadastre um cliente antes de iniciar a venda.</div>`,
+      `<button class="btn gold" onclick="renderClientForm()">＋ Cadastrar cliente</button>`);
+    return;
+  }
+  const body = `
+    <div class="breadcrumb"><b>Passo 1 de 3</b> — selecione o cliente</div>
+    ${state.clients.map(c=>`
+      <div class="list-row" style="cursor:pointer" onclick="selectClientForSale('${c.id}')">
+        <div class="info"><b>${esc(c.nome)}</b><div class="sub">${esc(c.telefone||'')}</div></div>
+        <div class="row-actions">${clientDevendo(c)?'<span class="badge due">Deve</span>':'<span class="badge ok">Em dia</span>'}</div>
+      </div>`).join('')}
+  `;
+  openModal('Nova Venda', body, `<button class="btn outline" onclick="closeModal()">Cancelar</button>`);
+}
+
+function selectClientForSale(clientId){
+  saleFlow.clientId = clientId;
+  renderSaleStepCategory();
+}
+
+function renderSaleStepCategory(){
+  const client = state.clients.find(c=>c.id===saleFlow.clientId);
+  const body = `
+    <div class="breadcrumb">Passo 2 de 3 — cliente: <b>${esc(client.nome)}</b></div>
+    <div class="cat-grid">
+      ${CATEGORIES.map(c=>`
+        <div class="cat-card" onclick="selectCategoryForSale('${c.key}')">
+          <div class="icon">${c.icon}</div>
+          <div class="name">${c.label}</div>
+          <div class="count">${(state.products[c.key]||[]).length} itens</div>
+        </div>`).join('')}
+    </div>
+    ${saleFlow.cart.length? renderCartBoxHtml() : ''}
+  `;
+  const footer = `
+    <button class="btn outline" onclick="renderSaleStepClient()">Trocar cliente</button>
+    ${saleFlow.cart.length? `<button class="btn danger" onclick="clearCart(true)">Esvaziar carrinho</button>
+    <button class="btn gold" onclick="renderCheckoutStep()">Ir para o carrinho (${saleFlow.cart.length})</button>` : ''}
+  `;
+  openModal('Nova Venda', body, footer);
+}
+
+function selectCategoryForSale(catKey){
+  saleFlow.category = catKey;
+  renderSaleStepProducts();
+}
+
+function renderSaleStepProducts(){
+  const cat = CATEGORIES.find(c=>c.key===saleFlow.category);
+  const client = state.clients.find(c=>c.id===saleFlow.clientId);
+  const items = state.products[saleFlow.category]||[];
+  const body = `
+    <div class="breadcrumb">Passo 3 de 3 — cliente: <b>${esc(client.nome)}</b> • categoria: <b>${cat.label}</b></div>
+    ${items.length? items.map(p=>`
+      <div class="list-row">
+        <div class="info">
+          <b>${esc(p.nome)}</b>
+          <div class="sub">${esc(p.descricao||'')}</div>
+          <div class="sub">À vista: ${fmtMoney(p.vista)} • A prazo: ${fmtMoney(p.prazo)}</div>
+        </div>
+        <div class="row-actions">
+          <button class="btn small gold" onclick="addToCart('${p.id}')">＋ Carrinho</button>
+        </div>
+      </div>`).join('') : '<div class="empty-msg">Nenhum produto nesta categoria.</div>'}
+    ${renderCartBoxHtml()}
+  `;
+  const footer = `
+    <button class="btn outline" onclick="renderSaleStepCategory()">Categorias</button>
+    <button class="btn danger" onclick="clearCart()">Esvaziar carrinho</button>
+    <button class="btn gold" onclick="renderCheckoutStep()" ${saleFlow.cart.length?'':'disabled'}>Finalizar (${saleFlow.cart.length})</button>
+  `;
+  openModal('Nova Venda', body, footer);
+}
+
+function renderCartBoxHtml(){
+  if(saleFlow.cart.length===0) return '';
+  const total = saleFlow.cart.reduce((s,i)=> s + (saleFlow.paymentType==='vista'?i.vista:i.prazo)*i.qty, 0);
+  return `
+    <div class="cart-box">
+      <b style="color:var(--wine);">Carrinho</b>
+      ${saleFlow.cart.map(i=>`
+        <div class="cart-item">
+          <span>${esc(i.nome)} x${i.qty}</span>
+          <span>${fmtMoney((saleFlow.paymentType==='vista'?i.vista:i.prazo)*i.qty)}
+            <button class="btn small danger" style="margin-left:8px;" onclick="removeFromCart('${i.cartId}')">×</button>
+          </span>
+        </div>`).join('')}
+      <div class="cart-total"><span>Total</span><span>${fmtMoney(total)}</span></div>
+    </div>`;
+}
+
+function addToCart(productId){
+  const p = (state.products[saleFlow.category]||[]).find(p=>p.id===productId);
+  if(!p) return;
+  const existing = saleFlow.cart.find(i=>i.productId===productId);
+  if(existing) existing.qty += 1;
+  else saleFlow.cart.push({cartId:uid(), productId, nome:p.nome, vista:p.vista, prazo:p.prazo, qty:1});
+  renderSaleStepProducts();
+}
+
+function removeFromCart(cartId){
+  saleFlow.cart = saleFlow.cart.filter(i=>i.cartId!==cartId);
+  if(document.getElementById('modal-title').textContent.includes('Venda') && saleFlow.category){
+    if(saleFlow.cart.length===0 && document.querySelectorAll('.toggle-group').length){ renderSaleStepProducts(); return; }
+  }
+  // re-render whichever step is showing the cart
+  if(document.getElementById('modal-body').innerHTML.includes('toggle-group')) renderCheckoutStep();
+  else renderSaleStepProducts();
+}
+
+function clearCart(fromCategoryStep){
+  saleFlow.cart = [];
+  if(fromCategoryStep) renderSaleStepCategory();
+  else renderSaleStepProducts();
+}
+
+function renderCheckoutStep(){
+  if(saleFlow.cart.length===0){ showToast('Carrinho vazio.'); return; }
+  const client = state.clients.find(c=>c.id===saleFlow.clientId);
+  const body = `
+    <div class="breadcrumb">Finalizar venda — cliente: <b>${esc(client.nome)}</b></div>
+    <div class="field">
+      <label>Forma de pagamento</label>
+      <div class="toggle-group">
+        <button class="${saleFlow.paymentType==='vista'?'active':''}" onclick="setPaymentType('vista')">À vista</button>
+        <button class="${saleFlow.paymentType==='prazo'?'active':''}" onclick="setPaymentType('prazo')">A prazo</button>
+      </div>
+    </div>
+    ${saleFlow.paymentType==='prazo' ? `
+      <div class="field"><label>Data de vencimento</label>
+        <input type="date" id="sale-duedate" value="${saleFlow.dueDate||''}" min="${todayISO()}"></div>
+    ` : ''}
+    ${renderCartBoxHtml()}
+  `;
+  const footer = `
+    <button class="btn outline" onclick="renderSaleStepProducts()">Voltar</button>
+    <button class="btn gold" onclick="finalizarCompra()">Finalizar compra</button>
+  `;
+  openModal('Nova Venda — Carrinho', body, footer);
+}
+
+function setPaymentType(type){
+  saleFlow.paymentType = type;
+  renderCheckoutStep();
+}
+
+function finalizarCompra(){
+  if(saleFlow.cart.length===0){ showToast('Carrinho vazio.'); return; }
+  let dueDate = null;
+  if(saleFlow.paymentType==='prazo'){
+    dueDate = document.getElementById('sale-duedate').value;
+    if(!dueDate){ showToast('Informe a data de vencimento.'); return; }
+  }
+  const total = saleFlow.cart.reduce((s,i)=> s + (saleFlow.paymentType==='vista'?i.vista:i.prazo)*i.qty, 0);
+  const client = state.clients.find(c=>c.id===saleFlow.clientId);
+  const purchase = {
+    id: uid(),
+    date: new Date().toISOString(),
+    items: saleFlow.cart.map(i=>({nome:i.nome, qty:i.qty, preco: saleFlow.paymentType==='vista'?i.vista:i.prazo})),
+    total,
+    type: saleFlow.paymentType,
+    dueDate: saleFlow.paymentType==='prazo' ? dueDate : null,
+    paid: saleFlow.paymentType==='vista'
+  };
+  client.purchases = client.purchases || [];
+  client.purchases.push(purchase);
+  persist('clients');
+
+  state.sales.push({
+    id: uid(), date: purchase.date, clientId: client.id, clientName: client.nome,
+    items: purchase.items, total, type: saleFlow.paymentType
+  });
+  persist('sales');
+
+  if(saleFlow.paymentType==='vista'){
+    state.saldo += total;
+    persist('saldo');
+  }
+
+  renderTopBar();
+  closeModal();
+  showToast('Venda finalizada — '+fmtMoney(total)+(saleFlow.paymentType==='vista'?' adicionados ao saldo.':' registrados a prazo.'));
+  saleFlow = {clientId:null, category:null, cart:[], paymentType:'vista', dueDate:null};
+}
+
+/* =========================================================
+   SALDO — HISTÓRICO / RETIRADA / A RECEBER
+   ========================================================= */
+function openHistoricoVendas(){
+  const sales = state.sales.slice().sort((a,b)=> new Date(b.date)-new Date(a.date));
+  const body = sales.length ? sales.map(s=>`
+    <div class="list-row">
+      <div class="info">
+        <b>${esc(s.clientName)} — ${fmtMoney(s.total)}</b>
+        <div class="sub">${new Date(s.date).toLocaleString('pt-BR')}</div>
+        <div class="sub">${s.items.map(i=>esc(i.nome)+' x'+i.qty).join(', ')}</div>
+      </div>
+      <span class="badge ${s.type==='vista'?'ok':'due'}">${s.type==='vista'?'À vista':'A prazo'}</span>
+    </div>`).join('') : '<div class="empty-msg">Nenhuma venda registrada ainda.</div>';
+  openModal('📈 Histórico de vendas', body, `<button class="btn outline" onclick="closeModal()">Fechar</button>`);
+}
+
+function openRetirada(){
+  const body = `
+    <div class="field"><label>Valor a retirar (R$)</label>
+      <input type="number" id="retirada-valor" min="0" step="0.01" max="${state.saldo}"></div>
+    <div class="sub" style="color:var(--muted);font-size:.8rem;">Saldo atual: ${fmtMoney(state.saldo)}</div>
+  `;
+  const footer = `
+    <button class="btn outline" onclick="closeModal()">Cancelar</button>
+    <button class="btn gold" onclick="confirmarRetirada()">Confirmar retirada</button>`;
+  openModal('Retirada de saldo', body, footer);
+}
+
+function confirmarRetirada(){
+  const valor = parseFloat(document.getElementById('retirada-valor').value);
+  if(!valor || valor<=0){ showToast('Informe um valor válido.'); return; }
+  if(valor > state.saldo){ showToast('Valor maior que o saldo disponível.'); return; }
+  state.saldo -= valor;
+  persist('saldo');
+  renderTopBar();
+  closeModal();
+  showToast('Retirada de '+fmtMoney(valor)+' realizada.');
+}
+
+function openReceberModal(){
+  const devedores = state.clients
+    .map(c=>({c, pend: (c.purchases||[]).filter(p=>p.type==='prazo' && !p.paid)}))
+    .filter(x=>x.pend.length>0);
+  const total = devedores.reduce((s,x)=> s + x.pend.reduce((s2,p)=>s2+p.total,0), 0);
+  const body = `
+    <div class="field"><b>Total a receber:</b> ${fmtMoney(total)}</div>
+    ${devedores.length? devedores.map(x=>`
+      <div class="list-row" style="cursor:pointer;align-items:flex-start;" onclick="openClientDetail('${x.c.id}')">
+        <div class="info">
+          <b>${esc(x.c.nome)}</b>
+          ${x.pend.map(p=>`<div class="sub">${fmtMoney(p.total)} — vencimento ${fmtDate(p.dueDate)}</div>`).join('')}
+        </div>
+        <span class="badge due">Deve</span>
+      </div>`).join('') : '<div class="empty-msg">Nenhum valor a receber no momento.</div>'}
+  `;
+  openModal('💰 Valores a receber', body, `<button class="btn outline" onclick="closeModal()">Fechar</button>`);
+}
+
+/* =========================================================
+   ANÁLISE MACTECH — cadastro de crédito
+   ========================================================= */
+function openAnaliseForm(clientId){
+  const existing = clientId ? state.analiseClients.find(c=>c.id===clientId) : null;
+  const body = `
+    <div class="field"><label>Nome</label><input id="af-nome" value="${existing?esc(existing.nome):''}"></div>
+    <div class="field-row">
+      <div class="field"><label>Data de nascimento</label><input type="date" id="af-nasc" value="${existing?existing.nascimento:''}"></div>
+      <div class="field"><label>CPF</label><input id="af-cpf" value="${existing?esc(existing.cpf):''}"></div>
+    </div>
+    <div class="field-row">
+      <div class="field"><label>Estado civil</label>
+        <select id="af-estado">
+          ${['Solteiro(a)','Casado(a)','Divorciado(a)','Viúvo(a)','União estável'].map(o=>
+            `<option ${existing&&existing.estadoCivil===o?'selected':''}>${o}</option>`).join('')}
+        </select>
+      </div>
+      <div class="field"><label>Telefone</label><input id="af-tel" value="${existing?esc(existing.telefone):''}"></div>
+    </div>
+    <div class="field"><label>Endereço</label><input id="af-end" value="${existing?esc(existing.endereco):''}"></div>
+    <div class="field"><label>E-mail</label><input type="email" id="af-email" value="${existing?esc(existing.email):''}"></div>
+    <div class="field"><label>Modalidade</label>
+      <select id="af-modalidade">
+        ${['CLT','INSS','Bolsa Família','FGTS'].map(o=>
+          `<option ${existing&&existing.modalidade===o?'selected':''}>${o}</option>`).join('')}
+      </select>
+    </div>
+  `;
+  const footer = `
+    <button class="btn outline" onclick="closeModal()">Cancelar</button>
+    <button class="btn gold" onclick="saveAnaliseClient(${existing?`'${existing.id}'`:'null'})">Salvar</button>`;
+  openModal((existing?'Editar':'Cadastrar')+' cliente para análise', body, footer);
+}
+
+function saveAnaliseClient(clientId){
+  const data = {
+    nome: document.getElementById('af-nome').value.trim(),
+    nascimento: document.getElementById('af-nasc').value,
+    cpf: document.getElementById('af-cpf').value.trim(),
+    estadoCivil: document.getElementById('af-estado').value,
+    telefone: document.getElementById('af-tel').value.trim(),
+    endereco: document.getElementById('af-end').value.trim(),
+    email: document.getElementById('af-email').value.trim(),
+    modalidade: document.getElementById('af-modalidade').value
+  };
+  if(!data.nome){ showToast('Informe o nome do cliente.'); return; }
+  if(clientId){
+    const c = state.analiseClients.find(c=>c.id===clientId);
+    Object.assign(c, data);
+  } else {
+    state.analiseClients.push({id:uid(), ...data, status:'Em Análise', vendaRealizada:false, comissaoValor:0});
+  }
+  persist('analiseClients');
+  closeModal();
+  renderAnaliseLists();
+  showToast('Cliente salvo para análise.');
+}
+
+function updateAnaliseStatus(clientId, status){
+  const c = state.analiseClients.find(c=>c.id===clientId);
+  c.status = status;
+  persist('analiseClients');
+  renderAnaliseLists();
+}
+
+function removeAnaliseClient(clientId){
+  if(!confirm('Remover este cliente da análise?')) return;
+  state.analiseClients = state.analiseClients.filter(c=>c.id!==clientId);
+  persist('analiseClients');
+  renderAnaliseLists();
+  showToast('Cliente removido.');
+}
+
+function renderAnaliseCard(c){
+  return `
+    <div class="analise-card">
+      <div class="top">
+        <b style="color:var(--wine);">${esc(c.nome)}</b>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <select class="status-select" onchange="updateAnaliseStatus('${c.id}', this.value)">
+            ${['Em Análise','Aprovado','Reprovado'].map(s=>`<option ${c.status===s?'selected':''}>${s}</option>`).join('')}
+          </select>
+          <button class="btn small outline" onclick="openAnaliseForm('${c.id}')">Editar</button>
+          <button class="btn small danger" onclick="removeAnaliseClient('${c.id}')">Remover</button>
+        </div>
+      </div>
+      <div class="details">
+        CPF: ${esc(c.cpf||'—')} • Nasc.: ${fmtDate(c.nascimento)} • ${esc(c.estadoCivil||'—')}<br>
+        ${esc(c.telefone||'—')} • ${esc(c.email||'—')}<br>
+        Endereço: ${esc(c.endereco||'—')}<br>
+        Modalidade: <span class="badge gold">${esc(c.modalidade)}</span>
+      </div>
+      ${c.status==='Aprovado' ? (
+        c.vendaRealizada
+          ? `<div style="margin-top:10px;"><span class="badge ok">Venda registrada — comissão ${fmtMoney(c.comissaoValor)}</span></div>`
+          : `<button class="btn small gold" style="margin-top:10px;" onclick="openComissaoForm('${c.id}')">Venda realizada</button>`
+      ) : ''}
+    </div>`;
+}
+
+function renderAnaliseLists(){
+  const emAnalise = state.analiseClients.filter(c=>c.status==='Em Análise');
+  const aprovados = state.analiseClients.filter(c=>c.status==='Aprovado');
+  const reprovados = state.analiseClients.filter(c=>c.status==='Reprovado');
+
+  document.getElementById('lista-analise').innerHTML = emAnalise.length
+    ? emAnalise.map(renderAnaliseCard).join('') : '<div class="empty-msg">Nenhum cliente em análise.</div>';
+  document.getElementById('lista-aprovados').innerHTML = aprovados.length
+    ? aprovados.map(renderAnaliseCard).join('') : '<div class="empty-msg">Nenhum cliente aprovado ainda.</div>';
+  document.getElementById('lista-reprovados').innerHTML = reprovados.length
+    ? reprovados.map(renderAnaliseCard).join('') : '<div class="empty-msg">Nenhum cliente reprovado.</div>';
+}
+
+function openComissaoForm(clientId){
+  const c = state.analiseClients.find(c=>c.id===clientId);
+  const body = `
+    <div class="field"><b>Cliente:</b> ${esc(c.nome)}</div>
+    <div class="field"><label>Valor da comissão a receber (R$)</label>
+      <input type="number" id="com-valor" min="0" step="0.01"></div>
+  `;
+  const footer = `
+    <button class="btn outline" onclick="closeModal()">Cancelar</button>
+    <button class="btn gold" onclick="confirmarComissao('${clientId}')">Registrar venda</button>`;
+  openModal('Registrar venda realizada', body, footer);
+}
+
+function confirmarComissao(clientId){
+  const valor = parseFloat(document.getElementById('com-valor').value);
+  if(!valor || valor<=0){ showToast('Informe um valor válido.'); return; }
+  const c = state.analiseClients.find(c=>c.id===clientId);
+  c.vendaRealizada = true;
+  c.comissaoValor = valor;
+  persist('analiseClients');
+
+  state.comissao.total += valor;
+  state.comissao.history.push({id:uid(), clienteNome:c.nome, valor, date:new Date().toISOString()});
+  persist('comissao');
+
+  renderTopBar();
+  closeModal();
+  renderAnaliseLists();
+  showToast('Venda registrada — comissão de '+fmtMoney(valor)+' adicionada.');
+}
+
+function openComissaoHistorico(){
+  const hist = state.comissao.history.slice().sort((a,b)=> new Date(b.date)-new Date(a.date));
+  const body = `
+    <div class="field"><b>Total acumulado:</b> ${fmtMoney(state.comissao.total)}</div>
+    ${hist.length? hist.map(h=>`
+      <div class="list-row">
+        <div class="info"><b>${esc(h.clienteNome)}</b><div class="sub">${new Date(h.date).toLocaleString('pt-BR')}</div></div>
+        <span class="badge gold">${fmtMoney(h.valor)}</span>
+      </div>`).join('') : '<div class="empty-msg">Nenhuma comissão registrada ainda.</div>'}
+  `;
+  openModal('💼 Comissão MacTech — histórico', body, `<button class="btn outline" onclick="closeModal()">Fechar</button>`);
+}
+
+function retirarComissao(){
+  if(state.comissao.total<=0){ showToast('Não há comissão para retirar.'); return; }
+  if(!confirm('Confirma a retirada de '+fmtMoney(state.comissao.total)+'? O histórico de comissão será zerado.')) return;
+  state.comissao = {total:0, history:[]};
+  persist('comissao');
+  renderTopBar();
+  showToast('Comissão retirada e histórico zerado.');
+}
+
+/* =========================================================
+   INTRO ANIMADA
+   ========================================================= */
+function buildIntro(){
+  const title = document.getElementById('intro-title');
+  const text = 'NATASHA VARIEDADES';
+  let delay = 0.15;
+  title.innerHTML = text.split('').map(ch=>{
+    const html = ch===' ' ? '&nbsp;&nbsp;' : esc(ch);
+    const span = `<span style="animation-delay:${delay.toFixed(2)}s">${html}</span>`;
+    delay += 0.045;
+    return span;
+  }).join('');
+
+  const petals = document.getElementById('petals');
+  for(let i=0;i<26;i++){
+    const p = document.createElement('div');
+    p.className='petal';
+    p.style.left = Math.random()*100+'%';
+    p.style.animationDuration = (6+Math.random()*6).toFixed(2)+'s';
+    p.style.animationDelay = (Math.random()*6).toFixed(2)+'s';
+    p.style.opacity = (0.3+Math.random()*0.4).toFixed(2);
+    p.style.transform = `scale(${(0.6+Math.random()*1.2).toFixed(2)})`;
+    petals.appendChild(p);
+  }
+}
+
+let introDone = false;
+function finishIntro(){
+  if(introDone) return;
+  introDone = true;
+  const intro = document.getElementById('intro');
+  intro.classList.add('fade-out');
+  setTimeout(()=>{ intro.style.display='none'; }, 850);
+  document.getElementById('app').classList.add('show');
+}
+function skipIntro(){ finishIntro(); }
+
+/* =========================================================
+   INIT
+   ========================================================= */
+async function init(){
+  buildIntro();
+  await loadState();
+  renderTopBar();
+  renderCategoryGrid();
+  renderAnaliseLists();
+  setTimeout(finishIntro, 3400);
+  if(!storageOK){
+    // silencioso: app segue funcionando em memória durante a sessão
+  }
+}
+init();
+</script>
+</body>
+</html>
