@@ -359,24 +359,27 @@ function showToast(msg){
   setTimeout(()=>t.classList.remove('show'), 2400);
 }
 
-/* ---------- storage ---------- */
+/* ---------- storage (localStorage do navegador) ---------- */
+const STORAGE_PREFIX = 'natasha-variedades:';
+
 async function loadState(){
   const keys = ['products','clients','sales','saldo','analiseClients','comissao'];
   for(const k of keys){
     try{
-      const r = await window.storage.get(k, false);
-      if(r && r.value !== undefined){
-        state[k] = JSON.parse(r.value);
+      const raw = localStorage.getItem(STORAGE_PREFIX+k);
+      if(raw !== null){
+        state[k] = JSON.parse(raw);
       }
-    }catch(e){ /* chave ainda não existe ou storage indisponível — mantém padrão */ }
+    }catch(e){ /* chave ainda não existe ou dado corrompido — mantém padrão */ }
   }
 }
 async function persist(key){
   try{
-    const r = await window.storage.set(key, JSON.stringify(state[key]), false);
-    if(!r) storageOK = false;
+    localStorage.setItem(STORAGE_PREFIX+key, JSON.stringify(state[key]));
+    storageOK = true;
   }catch(e){
     storageOK = false;
+    showToast('Não foi possível salvar os dados neste navegador.');
   }
 }
 
