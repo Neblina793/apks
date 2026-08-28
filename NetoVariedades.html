@@ -315,7 +315,14 @@
             padding: 1rem;
             margin-bottom: 0.5rem;
             background: var(--surface);
-            cursor: pointer;
+        }
+
+        .client-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 0.5rem;
         }
 
         .history-item {
@@ -464,9 +471,10 @@
         <!-- ABA: CLIENTES & HISTÓRICO -->
         <section id="tab-clientes" class="tab-content">
             <div class="card">
-                <h2>Cadastrar Cliente</h2>
+                <h2 id="cliFormTitle">Cadastrar Cliente</h2>
                 <br>
                 <form id="clientForm" onsubmit="handleClientSubmit(event)">
+                    <input type="hidden" id="cliId">
                     <div class="form-grid">
                         <div class="form-group">
                             <label>Nome do Cliente</label>
@@ -481,7 +489,8 @@
                             <textarea id="cliObs" rows="2"></textarea>
                         </div>
                     </div>
-                    <button type="submit" class="btn btn-primary">Cadastrar Cliente</button>
+                    <button type="submit" class="btn btn-primary" id="btnSaveCli">Cadastrar Cliente</button>
+                    <button type="button" class="btn btn-secondary" onclick="resetClientForm()" style="display:none;" id="btnCancelCli">Cancelar</button>
                 </form>
             </div>
 
@@ -578,6 +587,7 @@
             document.getElementById('prodDesc').value = p.desc;
 
             document.getElementById('prodFormTitle').innerText = 'Editar Produto';
+            document.getElementById('btnSaveProd').innerText = 'Atualizar Produto';
             document.getElementById('btnCancelProd').style.display = 'inline-block';
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
@@ -593,6 +603,7 @@
             document.getElementById('prodId').value = '';
             document.getElementById('productForm').reset();
             document.getElementById('prodFormTitle').innerText = 'Cadastrar Produto';
+            document.getElementById('btnSaveProd').innerText = 'Salvar Produto';
             document.getElementById('btnCancelProd').style.display = 'none';
         }
 
@@ -648,13 +659,42 @@
         // --- CLIENTES ---
         function handleClientSubmit(e) {
             e.preventDefault();
+            const id = document.getElementById('cliId').value;
             const name = document.getElementById('cliName').value.trim();
             const phone = document.getElementById('cliPhone').value.trim();
             const obs = document.getElementById('cliObs').value.trim();
 
-            clients.push({ id: Date.now().toString(), name, phone, obs });
+            if (id) {
+                const index = clients.findIndex(c => c.id === id);
+                clients[index] = { id, name, phone, obs };
+            } else {
+                clients.push({ id: Date.now().toString(), name, phone, obs });
+            }
+
             saveData();
+            resetClientForm();
+        }
+
+        function editClient(id) {
+            const c = clients.find(cli => cli.id === id);
+            if (!c) return;
+            document.getElementById('cliId').value = c.id;
+            document.getElementById('cliName').value = c.name;
+            document.getElementById('cliPhone').value = c.phone;
+            document.getElementById('cliObs').value = c.obs;
+
+            document.getElementById('cliFormTitle').innerText = 'Editar Cliente';
+            document.getElementById('btnSaveCli').innerText = 'Atualizar Cliente';
+            document.getElementById('btnCancelCli').style.display = 'inline-block';
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function resetClientForm() {
+            document.getElementById('cliId').value = '';
             document.getElementById('clientForm').reset();
+            document.getElementById('cliFormTitle').innerText = 'Cadastrar Cliente';
+            document.getElementById('btnSaveCli').innerText = 'Cadastrar Cliente';
+            document.getElementById('btnCancelCli').style.display = 'none';
         }
 
         function renderClients() {
@@ -687,10 +727,11 @@
                                 <div><strong>Itens:</strong> ${s.items.map(i => `${i.qty}x ${i.name}`).join(', ')}</div>
                                 <div><strong>Total:</strong> R$ ${s.total.toFixed(2)} (${s.paymentType === 'avista' ? 'À Vista' : '30 Dias'})</div>
                                 ${s.paymentType === '30dias' ? `<div><strong>Vencimento:</strong> ${dueDateStr}</div>` : ''}
-                                <div style="margin-top: 0.25rem;">
+                                <div style="margin-top: 0.25rem; display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
                                     <strong>Status:</strong> 
                                     <span class="${s.paid ? 'badge-paid' : 'badge-pending'}">${s.paid ? 'PAGO' : 'PENDENTE'}</span>
-                                    ${!s.paid ? `<button class="btn btn-sm btn-success" style="margin-left: 10px;" onclick="markAsPaid('${s.id}')">Marcar como Pago</button>` : ''}
+                                    ${!s.paid ? `<button class="btn btn-sm btn-success" onclick="markAsPaid('${s.id}')">Marcar como Pago</button>` : ''}
+                                    <button class="btn btn-sm btn-danger" onclick="cancelSale('${s.id}')">Cancelar Venda</button>
                                 </div>
                             </div>
                         `;
@@ -698,9 +739,12 @@
                 }
 
                 item.innerHTML = `
-                    <div>
-                        <h3>${c.name}</h3>
-                        <p style="font-size:0.85rem; color: var(--text-muted);">Tel: ${c.phone || 'Não informado'} | Obs: ${c.obs || 'Nenhuma'}</p>
+                    <div class="client-header">
+                        <div>
+                            <h3>${c.name}</h3>
+                            <p style="font-size:0.85rem; color: var(--text-muted);">Tel: ${c.phone || 'Não informado'} | Obs: ${c.obs || 'Nenhuma'}</p>
+                        </div>
+                        <button class="btn btn-sm btn-primary" onclick="editClient('${c.id}')">Editar Cadastro</button>
                     </div>
                     <details style="margin-top: 0.5rem;">
                         <summary style="font-size: 0.85rem; cursor: pointer; color: var(--primary);">Ver Histórico de Compras (${cliSales.length})</summary>
@@ -834,6 +878,28 @@
             if (sale) {
                 sale.paid = true;
                 saveData();
+            }
+        }
+
+        function cancelSale(saleId) {
+            if (!confirm('Tem certeza que deseja cancelar esta venda? Os itens retornarão para o estoque.')) return;
+
+            const saleIndex = sales.findIndex(s => s.id === saleId);
+            if (saleIndex !== -1) {
+                const sale = sales[saleIndex];
+                
+                // Devolve a quantidade ao estoque
+                sale.items.forEach(item => {
+                    const prod = products.find(p => p.id === item.productId);
+                    if (prod) {
+                        prod.qty += item.qty;
+                    }
+                });
+
+                // Remove a venda da lista
+                sales.splice(saleIndex, 1);
+                saveData();
+                alert('Venda cancelada com sucesso!');
             }
         }
 
