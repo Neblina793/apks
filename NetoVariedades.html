@@ -1,0 +1,886 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Neto Variedades</title>
+    <style>
+        /* Variáveis de Tema Claro (Padrão) */
+        :root[data-theme="light"] {
+            --primary: #2563eb;
+            --primary-dark: #1d4ed8;
+            --bg: #f8fafc;
+            --surface: #ffffff;
+            --text: #0f172a;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+            --danger: #ef4444;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --kpi-bg: #eff6ff;
+            --kpi-border: #bfdbfe;
+            --alert-bg: #fffbeb;
+            --alert-overdue-bg: #fef2f2;
+            --badge-in-stock-bg: #dcfce7;
+            --badge-in-stock-text: #166534;
+            --badge-out-stock-bg: #fee2e2;
+            --badge-out-stock-text: #991b1b;
+        }
+
+        /* Variáveis de Tema Escuro */
+        :root[data-theme="dark"] {
+            --primary: #3b82f6;
+            --primary-dark: #60a5fa;
+            --bg: #0f172a;
+            --surface: #1e293b;
+            --text: #f8fafc;
+            --text-muted: #94a3b8;
+            --border: #334155;
+            --danger: #f87171;
+            --success: #34d399;
+            --warning: #fbbf24;
+            --kpi-bg: #1e3a8a;
+            --kpi-border: #1e40af;
+            --alert-bg: #422006;
+            --alert-overdue-bg: #450a0a;
+            --badge-in-stock-bg: #064e3b;
+            --badge-in-stock-text: #a7f3d0;
+            --badge-out-stock-bg: #7f1d1d;
+            --badge-out-stock-text: #fecaca;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: system-ui, -apple-system, sans-serif;
+            transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            padding-bottom: 40px;
+        }
+
+        /* Animação Suave de Entrada */
+        .fade-in {
+            animation: fadeIn 0.4s ease-in-out forwards;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Topbar e Dashboard */
+        header {
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+            padding: 1rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .logo-area {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .theme-toggle-btn {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            color: var(--text);
+            padding: 0.4rem 0.8rem;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        .theme-toggle-btn:hover {
+            border-color: var(--primary);
+        }
+
+        .kpi-card {
+            background: var(--kpi-bg);
+            border: 1px solid var(--kpi-border);
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            text-align: right;
+        }
+
+        .kpi-title { font-size: 0.75rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase; }
+        .kpi-value { font-size: 1.25rem; font-weight: 700; color: var(--text); }
+
+        /* Container Principal */
+        .container {
+            max-width: 1200px;
+            margin: 1.5rem auto;
+            padding: 0 1rem;
+        }
+
+        /* Alertas de Vencimento */
+        .alerts-section {
+            margin-bottom: 1.5rem;
+        }
+
+        .alert-card {
+            border-left: 4px solid var(--warning);
+            padding: 1rem;
+            border-radius: 6px;
+            margin-bottom: 0.5rem;
+            background-color: var(--alert-bg);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .alert-card.overdue {
+            border-left-color: var(--danger);
+            background-color: var(--alert-overdue-bg);
+        }
+
+        /* Navegação por Abas */
+        .nav-tabs {
+            display: flex;
+            gap: 0.5rem;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 1.5rem;
+            overflow-x: auto;
+        }
+
+        .tab-btn {
+            padding: 0.75rem 1.25rem;
+            border: none;
+            background: none;
+            font-weight: 600;
+            color: var(--text-muted);
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            white-space: nowrap;
+        }
+
+        .tab-btn.active {
+            color: var(--primary);
+            border-bottom-color: var(--primary);
+        }
+
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
+        /* Formulários e Inputs */
+        .card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.35rem;
+        }
+
+        .form-group.full-width { grid-column: 1 / -1; }
+
+        label { font-size: 0.85rem; font-weight: 600; color: var(--text-muted); }
+
+        input, select, textarea {
+            padding: 0.6rem;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            font-size: 0.95rem;
+            outline: none;
+            background-color: var(--bg);
+            color: var(--text);
+        }
+
+        input:focus, select:focus, textarea:focus {
+            border-color: var(--primary);
+        }
+
+        /* Botões */
+        .btn {
+            padding: 0.6rem 1rem;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            transition: opacity 0.2s;
+        }
+
+        .btn:hover { opacity: 0.9; }
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-success { background: var(--success); color: white; }
+        .btn-danger { background: var(--danger); color: white; }
+        .btn-secondary { background: var(--border); color: var(--text); }
+        .btn-sm { padding: 0.3rem 0.6rem; font-size: 0.8rem; }
+
+        /* Listas de Produtos por Categoria */
+        .category-title {
+            font-size: 1.2rem;
+            margin: 1.5rem 0 0.75rem 0;
+            padding-bottom: 0.25rem;
+            border-bottom: 2px solid var(--border);
+            color: var(--primary);
+        }
+
+        .product-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 1rem;
+        }
+
+        .product-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            position: relative;
+        }
+
+        .stock-badge {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: bold;
+        }
+
+        .in-stock { background: var(--badge-in-stock-bg); color: var(--badge-in-stock-text); }
+        .out-of-stock { background: var(--badge-out-stock-bg); color: var(--badge-out-stock-text); }
+
+        .price-tag {
+            margin-top: 0.5rem;
+            font-size: 0.85rem;
+        }
+        .price-val { font-weight: bold; color: var(--text); }
+
+        .card-actions {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+
+        /* Modais e Histórico */
+        .client-list-item {
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 1rem;
+            margin-bottom: 0.5rem;
+            background: var(--surface);
+            cursor: pointer;
+        }
+
+        .history-item {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            padding: 0.75rem;
+            border-radius: 6px;
+            margin-top: 0.5rem;
+            font-size: 0.85rem;
+        }
+
+        .badge-paid { color: var(--success); font-weight: bold; }
+        .badge-pending { color: var(--warning); font-weight: bold; }
+
+        /* Carrinho */
+        .cart-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        @media (max-width: 600px) {
+            .header-content { flex-direction: column; align-items: flex-start; }
+            .kpi-card { width: 100%; text-align: left; }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="header-content">
+            <div class="logo-area">
+                <div class="logo">🛒 Neto Variedades</div>
+                <button class="theme-toggle-btn" onclick="toggleTheme()" id="themeBtn">
+                    🌙 Modo Escuro
+                </button>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-title">A Receber (30 dias)</div>
+                <div class="kpi-value" id="totalToReceive">R$ 0,00</div>
+            </div>
+        </div>
+    </header>
+
+    <div class="container fade-in">
+
+        <!-- Seção de Alertas de Vencimento -->
+        <div id="alertsContainer" class="alerts-section"></div>
+
+        <!-- Navegação por Abas -->
+        <nav class="nav-tabs">
+            <button class="tab-btn active" onclick="switchTab(event, 'tab-venda')">Nova Venda</button>
+            <button class="tab-btn" onclick="switchTab(event, 'tab-produtos')">Produtos</button>
+            <button class="tab-btn" onclick="switchTab(event, 'tab-clientes')">Clientes & Histórico</button>
+        </nav>
+
+        <!-- ABA: NOVA VENDA -->
+        <section id="tab-venda" class="tab-content active">
+            <div class="card">
+                <h2>1. Selecione o Cliente</h2>
+                <br>
+                <div class="form-group">
+                    <select id="saleClientSelect" onchange="startSaleProcess()">
+                        <option value="">-- Escolha um cliente --</option>
+                    </select>
+                </div>
+            </div>
+
+            <div id="saleArea" class="card" style="display: none;">
+                <h2>2. Adicionar Produtos ao Carrinho</h2>
+                <br>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Produto</label>
+                        <select id="saleProductSelect">
+                            <option value="">-- Escolha o produto --</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Tipo de Pagamento</label>
+                        <select id="saleTypeSelect">
+                            <option value="avista">À Vista</option>
+                            <option value="30dias">A Prazo (30 dias)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Quantidade</label>
+                        <input type="number" id="saleQtyInput" value="1" min="1">
+                    </div>
+                </div>
+                <button class="btn btn-primary" onclick="addToCart()">Adicionar ao Carrinho</button>
+
+                <br><br>
+                <h3>Itens do Carrinho</h3>
+                <div id="cartList" style="margin: 1rem 0;"></div>
+                <div style="font-size: 1.2rem; font-weight: bold; margin-bottom: 1rem;">
+                    Total: <span id="cartTotal">R$ 0,00</span>
+                </div>
+                <button class="btn btn-success" onclick="finalizeSale()">Finalizar Venda</button>
+            </div>
+        </section>
+
+        <!-- ABA: PRODUTOS -->
+        <section id="tab-produtos" class="tab-content">
+            <div class="card">
+                <h2 id="prodFormTitle">Cadastrar Produto</h2>
+                <br>
+                <form id="productForm" onsubmit="handleProductSubmit(event)">
+                    <input type="hidden" id="prodId">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Categoria</label>
+                            <input type="text" id="prodCategory" required placeholder="Ex: Eletrônicos, Roupas">
+                        </div>
+                        <div class="form-group">
+                            <label>Nome do Produto</label>
+                            <input type="text" id="prodName" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Quantidade em Estoque</label>
+                            <input type="number" id="prodQty" min="0" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Valor À Vista (R$)</label>
+                            <input type="number" step="0.01" id="prodPriceCash" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Valor 30 Dias (R$)</label>
+                            <input type="number" step="0.01" id="prodPriceTerm" required>
+                        </div>
+                        <div class="form-group full-width">
+                            <label>Descrição</label>
+                            <textarea id="prodDesc" rows="2"></textarea>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary" id="btnSaveProd">Salvar Produto</button>
+                    <button type="button" class="btn btn-secondary" onclick="resetProductForm()" style="display:none;" id="btnCancelProd">Cancelar</button>
+                </form>
+            </div>
+
+            <div id="productListCategoryView"></div>
+        </section>
+
+        <!-- ABA: CLIENTES & HISTÓRICO -->
+        <section id="tab-clientes" class="tab-content">
+            <div class="card">
+                <h2>Cadastrar Cliente</h2>
+                <br>
+                <form id="clientForm" onsubmit="handleClientSubmit(event)">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Nome do Cliente</label>
+                            <input type="text" id="cliName" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Telefone</label>
+                            <input type="text" id="cliPhone" placeholder="(00) 00000-0000">
+                        </div>
+                        <div class="form-group full-width">
+                            <label>Observação (OB)</label>
+                            <textarea id="cliObs" rows="2"></textarea>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Cadastrar Cliente</button>
+                </form>
+            </div>
+
+            <h2>Lista de Clientes e Histórico</h2>
+            <br>
+            <div id="clientsList"></div>
+        </section>
+
+    </div>
+
+    <script>
+        // --- GERENCIAMENTO DE TEMA ---
+        function initTheme() {
+            const savedTheme = localStorage.getItem('nv_theme') || 'light';
+            document.documentElement.setAttribute('data-theme', savedTheme);
+            updateThemeButton(savedTheme);
+        }
+
+        function toggleTheme() {
+            const currentTheme = document.documentElement.getAttribute('data-theme');
+            const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+            
+            document.documentElement.setAttribute('data-theme', newTheme);
+            localStorage.setItem('nv_theme', newTheme);
+            updateThemeButton(newTheme);
+        }
+
+        function updateThemeButton(theme) {
+            const btn = document.getElementById('themeBtn');
+            if (theme === 'dark') {
+                btn.innerHTML = '☀️ Modo Claro';
+            } else {
+                btn.innerHTML = '🌙 Modo Escuro';
+            }
+        }
+
+        // --- DADOS DO APP (LocalStorage) ---
+        let products = JSON.parse(localStorage.getItem('nv_products')) || [];
+        let clients = JSON.parse(localStorage.getItem('nv_clients')) || [];
+        let sales = JSON.parse(localStorage.getItem('nv_sales')) || [];
+
+        let currentCart = [];
+
+        function saveData() {
+            localStorage.setItem('nv_products', JSON.stringify(products));
+            localStorage.setItem('nv_clients', JSON.stringify(clients));
+            localStorage.setItem('nv_sales', JSON.stringify(sales));
+            renderAll();
+        }
+
+        // Navegação de Abas
+        function switchTab(e, tabId) {
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            
+            e.target.classList.add('active');
+            document.getElementById(tabId).classList.add('active');
+        }
+
+        // --- PRODUTOS ---
+        function handleProductSubmit(e) {
+            e.preventDefault();
+            const id = document.getElementById('prodId').value;
+            const category = document.getElementById('prodCategory').value.trim();
+            const name = document.getElementById('prodName').value.trim();
+            const qty = parseInt(document.getElementById('prodQty').value);
+            const priceCash = parseFloat(document.getElementById('prodPriceCash').value);
+            const priceTerm = parseFloat(document.getElementById('prodPriceTerm').value);
+            const desc = document.getElementById('prodDesc').value.trim();
+
+            if (id) {
+                const index = products.findIndex(p => p.id === id);
+                products[index] = { id, category, name, qty, priceCash, priceTerm, desc };
+            } else {
+                products.push({
+                    id: Date.now().toString(),
+                    category, name, qty, priceCash, priceTerm, desc
+                });
+            }
+
+            saveData();
+            resetProductForm();
+        }
+
+        function editProduct(id) {
+            const p = products.find(p => p.id === id);
+            if (!p) return;
+            document.getElementById('prodId').value = p.id;
+            document.getElementById('prodCategory').value = p.category;
+            document.getElementById('prodName').value = p.name;
+            document.getElementById('prodQty').value = p.qty;
+            document.getElementById('prodPriceCash').value = p.priceCash;
+            document.getElementById('prodPriceTerm').value = p.priceTerm;
+            document.getElementById('prodDesc').value = p.desc;
+
+            document.getElementById('prodFormTitle').innerText = 'Editar Produto';
+            document.getElementById('btnCancelProd').style.display = 'inline-block';
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function deleteProduct(id) {
+            if (confirm('Deseja realmente remover este produto?')) {
+                products = products.filter(p => p.id !== id);
+                saveData();
+            }
+        }
+
+        function resetProductForm() {
+            document.getElementById('prodId').value = '';
+            document.getElementById('productForm').reset();
+            document.getElementById('prodFormTitle').innerText = 'Cadastrar Produto';
+            document.getElementById('btnCancelProd').style.display = 'none';
+        }
+
+        function renderProducts() {
+            const container = document.getElementById('productListCategoryView');
+            container.innerHTML = '';
+
+            const categories = {};
+            products.forEach(p => {
+                if (!categories[p.category]) categories[p.category] = [];
+                categories[p.category].push(p);
+            });
+
+            if (Object.keys(categories).length === 0) {
+                container.innerHTML = '<p style="color: var(--text-muted);">Nenhum produto cadastrado.</p>';
+                return;
+            }
+
+            for (let cat in categories) {
+                const catTitle = document.createElement('h3');
+                catTitle.className = 'category-title';
+                catTitle.innerText = cat;
+                container.appendChild(catTitle);
+
+                const grid = document.createElement('div');
+                grid.className = 'product-grid';
+
+                categories[cat].forEach(p => {
+                    const isOut = p.qty <= 0;
+                    const card = document.createElement('div');
+                    card.className = 'product-card';
+                    card.innerHTML = `
+                        <div>
+                            <span class="stock-badge ${isOut ? 'out-of-stock' : 'in-stock'}">
+                                ${isOut ? 'Esgotado' : 'Estoque: ' + p.qty}
+                            </span>
+                            <h3>${p.name}</h3>
+                            <p style="font-size:0.85rem; color: var(--text-muted); margin-top: 0.25rem;">${p.desc || 'Sem descrição'}</p>
+                            <div class="price-tag">À Vista: <span class="price-val">R$ ${p.priceCash.toFixed(2)}</span></div>
+                            <div class="price-tag">30 Dias: <span class="price-val">R$ ${p.priceTerm.toFixed(2)}</span></div>
+                        </div>
+                        <div class="card-actions">
+                            <button class="btn btn-sm btn-primary" onclick="editProduct('${p.id}')">Editar</button>
+                            <button class="btn btn-sm btn-danger" onclick="deleteProduct('${p.id}')">Remover</button>
+                        </div>
+                    `;
+                    grid.appendChild(card);
+                });
+                container.appendChild(grid);
+            }
+        }
+
+        // --- CLIENTES ---
+        function handleClientSubmit(e) {
+            e.preventDefault();
+            const name = document.getElementById('cliName').value.trim();
+            const phone = document.getElementById('cliPhone').value.trim();
+            const obs = document.getElementById('cliObs').value.trim();
+
+            clients.push({ id: Date.now().toString(), name, phone, obs });
+            saveData();
+            document.getElementById('clientForm').reset();
+        }
+
+        function renderClients() {
+            const container = document.getElementById('clientsList');
+            const selectSale = document.getElementById('saleClientSelect');
+
+            container.innerHTML = '';
+            selectSale.innerHTML = '<option value="">-- Escolha um cliente --</option>';
+
+            clients.forEach(c => {
+                const opt = document.createElement('option');
+                opt.value = c.id;
+                opt.textContent = c.name;
+                selectSale.appendChild(opt);
+
+                const cliSales = sales.filter(s => s.clientId === c.id);
+                const item = document.createElement('div');
+                item.className = 'client-list-item';
+                
+                let salesHistoryHtml = '';
+                if(cliSales.length === 0) {
+                    salesHistoryHtml = '<p style="font-size:0.8rem; color:var(--text-muted); margin-top: 0.5rem;">Nenhuma compra registrada.</p>';
+                } else {
+                    cliSales.forEach(s => {
+                        const dateStr = new Date(s.date).toLocaleString('pt-BR');
+                        const dueDateStr = new Date(s.dueDate).toLocaleDateString('pt-BR');
+                        salesHistoryHtml += `
+                            <div class="history-item">
+                                <div><strong>Data:</strong> ${dateStr}</div>
+                                <div><strong>Itens:</strong> ${s.items.map(i => `${i.qty}x ${i.name}`).join(', ')}</div>
+                                <div><strong>Total:</strong> R$ ${s.total.toFixed(2)} (${s.paymentType === 'avista' ? 'À Vista' : '30 Dias'})</div>
+                                ${s.paymentType === '30dias' ? `<div><strong>Vencimento:</strong> ${dueDateStr}</div>` : ''}
+                                <div style="margin-top: 0.25rem;">
+                                    <strong>Status:</strong> 
+                                    <span class="${s.paid ? 'badge-paid' : 'badge-pending'}">${s.paid ? 'PAGO' : 'PENDENTE'}</span>
+                                    ${!s.paid ? `<button class="btn btn-sm btn-success" style="margin-left: 10px;" onclick="markAsPaid('${s.id}')">Marcar como Pago</button>` : ''}
+                                </div>
+                            </div>
+                        `;
+                    });
+                }
+
+                item.innerHTML = `
+                    <div>
+                        <h3>${c.name}</h3>
+                        <p style="font-size:0.85rem; color: var(--text-muted);">Tel: ${c.phone || 'Não informado'} | Obs: ${c.obs || 'Nenhuma'}</p>
+                    </div>
+                    <details style="margin-top: 0.5rem;">
+                        <summary style="font-size: 0.85rem; cursor: pointer; color: var(--primary);">Ver Histórico de Compras (${cliSales.length})</summary>
+                        ${salesHistoryHtml}
+                    </details>
+                `;
+                container.appendChild(item);
+            });
+        }
+
+        // --- VENDAS ---
+        function startSaleProcess() {
+            const clientId = document.getElementById('saleClientSelect').value;
+            const saleArea = document.getElementById('saleArea');
+            if (clientId) {
+                saleArea.style.display = 'block';
+                currentCart = [];
+                renderCart();
+                populateSaleProducts();
+            } else {
+                saleArea.style.display = 'none';
+            }
+        }
+
+        function populateSaleProducts() {
+            const select = document.getElementById('saleProductSelect');
+            select.innerHTML = '<option value="">-- Escolha o produto --</option>';
+            products.forEach(p => {
+                if(p.qty > 0) {
+                    const opt = document.createElement('option');
+                    opt.value = p.id;
+                    opt.textContent = `${p.name} (Estoque: ${p.qty})`;
+                    select.appendChild(opt);
+                }
+            });
+        }
+
+        function addToCart() {
+            const prodId = document.getElementById('saleProductSelect').value;
+            const payType = document.getElementById('saleTypeSelect').value;
+            const qty = parseInt(document.getElementById('saleQtyInput').value);
+
+            if (!prodId || qty <= 0) return alert('Selecione um produto e quantidade válida!');
+
+            const product = products.find(p => p.id === prodId);
+            if (qty > product.qty) return alert('Quantidade desejada maior que o estoque disponível!');
+
+            const unitPrice = payType === 'avista' ? product.priceCash : product.priceTerm;
+
+            currentCart.push({
+                productId: product.id,
+                name: product.name,
+                qty: qty,
+                unitPrice: unitPrice,
+                payType: payType,
+                subtotal: unitPrice * qty
+            });
+
+            renderCart();
+        }
+
+        function renderCart() {
+            const container = document.getElementById('cartList');
+            const totalEl = document.getElementById('cartTotal');
+            container.innerHTML = '';
+
+            let total = 0;
+            currentCart.forEach((item, index) => {
+                total += item.subtotal;
+                const div = document.createElement('div');
+                div.className = 'cart-item';
+                div.innerHTML = `
+                    <div>
+                        <strong>${item.name}</strong> (${item.qty}x) - ${item.payType === 'avista' ? 'À Vista' : '30 Dias'}
+                        <br><small>R$ ${item.unitPrice.toFixed(2)} un.</small>
+                    </div>
+                    <div>
+                        R$ ${item.subtotal.toFixed(2)}
+                        <button class="btn btn-sm btn-danger" onclick="removeFromCart(${index})">X</button>
+                    </div>
+                `;
+                container.appendChild(div);
+            });
+
+            totalEl.innerText = `R$ ${total.toFixed(2)}`;
+        }
+
+        function removeFromCart(index) {
+            currentCart.splice(index, 1);
+            renderCart();
+        }
+
+        function finalizeSale() {
+            if (currentCart.length === 0) return alert('Carrinho vazio!');
+
+            const clientId = document.getElementById('saleClientSelect').value;
+            const now = new Date();
+            const dueDate = new Date();
+            dueDate.setDate(now.getDate() + 30);
+
+            const hasTermItems = currentCart.some(i => i.payType === '30dias');
+            const paymentType = hasTermItems ? '30dias' : 'avista';
+            const total = currentCart.reduce((sum, i) => sum + i.subtotal, 0);
+
+            currentCart.forEach(item => {
+                const prod = products.find(p => p.id === item.productId);
+                if (prod) prod.qty -= item.qty;
+            });
+
+            sales.push({
+                id: Date.now().toString(),
+                clientId: clientId,
+                items: currentCart,
+                total: total,
+                paymentType: paymentType,
+                date: now.toISOString(),
+                dueDate: dueDate.toISOString(),
+                paid: paymentType === 'avista'
+            });
+
+            saveData();
+            alert('Venda finalizada com sucesso!');
+            
+            document.getElementById('saleClientSelect').value = '';
+            document.getElementById('saleArea').style.display = 'none';
+            currentCart = [];
+        }
+
+        function markAsPaid(saleId) {
+            const sale = sales.find(s => s.id === saleId);
+            if (sale) {
+                sale.paid = true;
+                saveData();
+            }
+        }
+
+        // --- DASHBOARD & ALERTAS ---
+        function renderDashboard() {
+            let totalToReceive = 0;
+            const alertsContainer = document.getElementById('alertsContainer');
+            alertsContainer.innerHTML = '';
+
+            const today = new Date();
+
+            sales.forEach(s => {
+                if (s.paymentType === '30dias' && !s.paid) {
+                    totalToReceive += s.total;
+
+                    const client = clients.find(c => c.id === s.clientId);
+                    const dueDate = new Date(s.dueDate);
+                    const isOverdue = today >= dueDate;
+                    
+                    const alertCard = document.createElement('div');
+                    alertCard.className = `alert-card ${isOverdue ? 'overdue' : ''}`;
+                    alertCard.innerHTML = `
+                        <div>
+                            <strong>${isOverdue ? '⚠️ VENCIDO' : '📅 A VENCER'}:</strong> ${client ? client.name : 'Cliente Desconhecido'} 
+                            | Devendo: <strong>R$ ${s.total.toFixed(2)}</strong>
+                        </div>
+                        <div>
+                            <small>Data de Vencimento: ${dueDate.toLocaleDateString('pt-BR')}</small>
+                            <button class="btn btn-sm btn-success" style="margin-left:8px;" onclick="markAsPaid('${s.id}')">Pagar</button>
+                        </div>
+                    `;
+                    alertsContainer.appendChild(alertCard);
+                }
+            });
+
+            document.getElementById('totalToReceive').innerText = `R$ ${totalToReceive.toFixed(2)}`;
+        }
+
+        function renderAll() {
+            renderProducts();
+            renderClients();
+            renderDashboard();
+        }
+
+        // Inicialização
+        initTheme();
+        renderAll();
+    </script>
+</body>
+</html>

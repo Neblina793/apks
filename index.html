@@ -12,6 +12,7 @@
             --accent: #00d4ff; 
             --text: #ffffff;
             --btn-green: #00e676;
+            --btn-orange: #ff9100;
         }
 
         * {
@@ -48,6 +49,7 @@
             position: sticky;
             top: 0;
             z-index: 100;
+            flex-wrap: wrap;
         }
 
         nav a {
@@ -152,6 +154,20 @@
             box-shadow: 0 0 30px rgba(0, 230, 118, 0.3);
         }
 
+        /* Estilo do Botão Neto Variedades */
+        .card-variedades {
+            border-color: rgba(255, 145, 0, 0.4);
+        }
+
+        .card-variedades h2 {
+            color: var(--btn-orange);
+        }
+
+        .card-variedades:hover {
+            border-color: var(--btn-orange);
+            box-shadow: 0 0 30px rgba(255, 145, 0, 0.3);
+        }
+
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(20px); }
             to { opacity: 1; transform: translateY(0); }
@@ -171,6 +187,7 @@
     <nav>
         <a href="index.html">Home</a>
         <a href="projetos.html">Projetos</a>
+        <a href="NetoVariedades.html">Neto Variedades</a>
         <a href="pinx.html">PINX</a>
         <a href="#ferramentas">Ferramentas</a>
         <a href="#contato">Contato</a>
@@ -183,6 +200,12 @@
     </header>
 
     <main class="container">
+        <!-- Botão para Neto Variedades -->
+        <a href="NetoVariedades.html" class="card card-variedades">
+            <h2>🛒 Neto Variedades</h2>
+            <p>Acesse o sistema de gerenciamento de vendas e estoque do Neto Variedades.</p>
+        </a>
+
         <a href="NetoCraftProfessions-1.0.0.jar" download class="card card-download">
             <h2>📦 Download NetoCraftProfessions v1.0.0</h2>
             <p>Clique aqui para baixar o arquivo .jar diretamente.</p>
