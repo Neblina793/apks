@@ -11,6 +11,7 @@
             --purple-dark: #1a002e;
             --accent: #00d4ff; 
             --text: #ffffff;
+            --btn-green: #00e676;
         }
 
         * {
@@ -114,8 +115,8 @@
             backdrop-filter: blur(10px);
             text-align: center;
             cursor: pointer;
-            text-decoration: none; /* Garante que o link não mude a cor do texto */
-            display: block; /* Faz o card ocupar o espaço corretamente como link */
+            text-decoration: none;
+            display: block;
         }
 
         .card:hover {
@@ -135,6 +136,20 @@
             color: #bbb;
             margin: 0;
             font-size: 0.95rem;
+        }
+
+        /* Estilo do Botão de Download */
+        .card-download {
+            border-color: rgba(0, 230, 118, 0.4);
+        }
+
+        .card-download h2 {
+            color: var(--btn-green);
+        }
+
+        .card-download:hover {
+            border-color: var(--btn-green);
+            box-shadow: 0 0 30px rgba(0, 230, 118, 0.3);
         }
 
         @keyframes fadeIn {
@@ -168,6 +183,11 @@
     </header>
 
     <main class="container">
+        <a href="NetoCraftProfessions-1.0.0.jar" download class="card card-download">
+            <h2>📦 Download NetoCraftProfessions v1.0.0</h2>
+            <p>Clique aqui para baixar o arquivo .jar diretamente.</p>
+        </a>
+
         <a href="projetos.html" class="card">
             <h2>📱 Apps Android</h2>
             <p>Desenvolvimento focado em performance e interface fluida. Clique para ver projetos.</p>
