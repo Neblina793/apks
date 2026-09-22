@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>30 Dias — Energia, Sono & Vitalidade</title>
+<style>
+:root{--bg:#07111f;--card:#0d1b2d;--card2:#10243b;--text:#edf6ff;--muted:#9fb2c8;--accent:#4de1b5;--accent2:#5da9ff;--danger:#ff7777;--line:#203650}
+*{box-sizing:border-box} html{scroll-behavior:smooth} body{margin:0;font-family:Inter,system-ui,Arial,sans-serif;background:radial-gradient(circle at 20% 0%,#16304c 0,#07111f 45%,#030811 100%);color:var(--text);line-height:1.5}
+header{min-height:68vh;display:grid;place-items:center;padding:50px 20px;text-align:center;overflow:hidden;position:relative}
+.hero{max-width:900px;position:relative;z-index:2}.hero h1{font-size:clamp(2.2rem,7vw,5rem);margin:0 0 10px;letter-spacing:-.05em}.hero p{color:var(--muted);font-size:1.1rem;max-width:700px;margin:0 auto}
+.orb{position:absolute;width:170px;height:170px;border-radius:50%;background:linear-gradient(145deg,#7fffe0,#2469ff 70%);box-shadow:0 0 80px #3dbbff66;transform-style:preserve-3d;animation:float 6s ease-in-out infinite;right:10%;top:15%;opacity:.65}
+.orb:after{content:"";position:absolute;inset:20%;border:2px solid #fff8;border-radius:50%;transform:rotateX(70deg) rotateY(20deg)}
+@keyframes float{50%{transform:translateY(-28px) rotateX(35deg) rotateY(55deg)}}
+.wrap{max-width:1100px;margin:auto;padding:25px 18px 70px}.grid{display:grid;grid-template-columns:1.15fr .85fr;gap:20px}
+.card{background:linear-gradient(145deg,#10243bdd,#091727dd);border:1px solid var(--line);border-radius:22px;padding:22px;box-shadow:0 20px 50px #0005;transition:.35s transform,.35s border-color}.card:hover{transform:translateY(-4px);border-color:#386087}
+h2{margin-top:0}.muted{color:var(--muted)}.warning{border-color:#8c6337;background:#231b10}
+.progress{height:12px;background:#07111d;border-radius:99px;overflow:hidden;border:1px solid var(--line)}.bar{height:100%;width:0;background:linear-gradient(90deg,var(--accent),var(--accent2));transition:width .5s}
+#progressText{margin:10px 0 0;color:var(--muted)}
+.timeline{display:grid;gap:10px}.time{display:grid;grid-template-columns:82px 1fr;gap:15px;padding:13px;border:1px solid var(--line);border-radius:15px;background:#081626;transition:.25s}.time:hover{transform:translateX(4px)}.clock{font-weight:800;color:var(--accent)}
+.daybox{display:flex;align-items:center;gap:10px;justify-content:space-between;flex-wrap:wrap;margin-bottom:16px}
+select,button{font:inherit;border-radius:12px;border:1px solid var(--line);background:#0a1727;color:var(--text);padding:10px 13px}button{cursor:pointer;transition:.2s}button:hover{transform:translateY(-2px);border-color:var(--accent)}button.primary{background:linear-gradient(135deg,#159c7a,#2164b6);border:0}
+.checks{display:grid;gap:10px}.check{display:flex;gap:12px;align-items:flex-start;padding:13px;border:1px solid var(--line);border-radius:14px;background:#081626;transition:.2s}.check.done{border-color:#277e6b;background:#0b2a25}.check input{width:20px;height:20px;accent-color:var(--accent);margin-top:2px}.check label{cursor:pointer;flex:1}
+.meals{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}.meal{padding:15px;border-radius:16px;background:#091a2c;border:1px solid var(--line)}.meal b{color:var(--accent2)}
+.exercise{padding:16px;border-left:3px solid var(--accent);background:#091a2c;border-radius:0 14px 14px 0;margin:10px 0}
+footer{text-align:center;color:var(--muted);padding:30px 15px}
+@media(max-width:800px){.grid,.meals{grid-template-columns:1fr}.orb{right:-60px;top:5%}.time{grid-template-columns:65px 1fr}}
+</style>
+</head>
+<body>
+<header>
+<div class="orb"></div>
+<div class="hero">
+<div class="muted">PLANO PESSOAL • 30 DIAS</div>
+<h1>Energia, Sono & Vitalidade</h1>
+<p>Uma rotina simples para organizar sono, alimentação, atividade física, controle da diabetes e redução do tabagismo.</p>
+</div>
+</header>
+
+<main class="wrap">
+<section class="card warning">
+<h2>⚠️ Antes de começar</h2>
+<p>Este plano é um guia de hábitos, não substitui acompanhamento médico. Como você relatou diabetes, perda rápida de peso, cansaço, dificuldade para dormir e disfunção erétil, marque uma consulta médica para avaliar glicemia/HbA1c, pressão, colesterol, função renal e testosterona matinal, conforme orientação profissional.</p>
+<p><b>Não altere seus medicamentos e não use testosterona ou “boosters” por conta própria.</b> Se tiver glicemia muito alta acompanhada de muita sede/urina, vômitos, dor abdominal, respiração rápida/profunda, confusão ou grande fraqueza, procure atendimento imediatamente.</p>
+</section>
+
+<section class="card" style="margin-top:20px">
+<div class="daybox">
+<div><h2 id="dayTitle">Dia 1</h2><div class="muted" id="dateText"></div></div>
+<div>
+<select id="daySelect"></select>
+<button id="resetBtn">Recomeçar este dia</button>
+</div>
+</div>
+<div class="progress"><div class="bar" id="bar"></div></div>
+<p id="progressText">0% concluído</p>
+<div id="checklist" class="checks"></div>
+</section>
+
+<div class="grid" style="margin-top:20px">
+<section class="card">
+<h2>⏰ Rotina diária</h2>
+<div class="timeline">
+<div class="time"><div class="clock">07:00</div><div><b>Acordar + água</b><br><span class="muted">Luz natural por 10–20 min. Se mede glicemia, siga o horário recomendado pelo seu médico.</span></div></div>
+<div class="time"><div class="clock">07:30</div><div><b>Café da manhã</b><br><span class="muted">Proteína + fibra, sem bebidas açucaradas.</span></div></div>
+<div class="time"><div class="clock">10:30</div><div><b>Lanche opcional</b><br><span class="muted">Somente se necessário: fruta + iogurte natural ou pequena porção de castanhas.</span></div></div>
+<div class="time"><div class="clock">12:30</div><div><b>Almoço</b><br><span class="muted">½ prato legumes/verduras + ¼ proteína + ¼ arroz/feijão ou outro carboidrato.</span></div></div>
+<div class="time"><div class="clock">15:30</div><div><b>Pausa ativa</b><br><span class="muted">Levante e caminhe alguns minutos. Evite longos períodos sentado.</span></div></div>
+<div class="time"><div class="clock">18:30</div><div><b>Exercício</b><br><span class="muted">Caminhada ou treino de força conforme o dia abaixo.</span></div></div>
+<div class="time"><div class="clock">19:30</div><div><b>Jantar</b><br><span class="muted">Parecido com o almoço, ajustando a quantidade às suas necessidades.</span></div></div>
+<div class="time"><div class="clock">21:30</div><div><b>Desacelerar</b><br><span class="muted">Luzes mais baixas; reduza telas e evite café/energéticos.</span></div></div>
+<div class="time"><div class="clock">22:30</div><div><b>Preparar para dormir</b><br><span class="muted">Quarto escuro, silencioso e fresco.</span></div></div>
+<div class="time"><div class="clock">23:00</div><div><b>Dormir</b><br><span class="muted">Tente manter horário consistente.</span></div></div>
+</div>
+</section>
+
+<section class="card">
+<h2>🏋️ Exercício do dia</h2>
+<div id="exerciseBox"></div>
+<h2 style="margin-top:24px">🚭 Tabagismo</h2>
+<p>Nos dias 1–7, apenas registre quantos cigarros fuma e identifique os gatilhos. Do dia 8 em diante, reduza progressivamente e escolha uma data para parar. Procure apoio profissional se precisar.</p>
+</section>
+</div>
+
+<section class="card" style="margin-top:20px">
+<h2>🍽️ Sugestões de refeições</h2>
+<div class="meals">
+<div class="meal"><b>Café A</b><br>2 ovos + queijo branco + 1 fruta.</div>
+<div class="meal"><b>Café B</b><br>Iogurte natural sem açúcar + aveia + fruta + pequena porção de castanhas.</div>
+<div class="meal"><b>Almoço A</b><br>Arroz + feijão + frango grelhado + salada + legumes.</div>
+<div class="meal"><b>Almoço B</b><br>Peixe + feijão + pequena porção de arroz + legumes variados.</div>
+<div class="meal"><b>Jantar A</b><br>Carne magra + legumes + salada + pequena porção de arroz/feijão.</div>
+<div class="meal"><b>Jantar B</b><br>Omelete com legumes + salada + acompanhamento definido conforme seu plano alimentar.</div>
+</div>
+<p class="muted">As porções precisam ser individualizadas, especialmente por você ter diabetes e ter perdido peso rapidamente. Evite dietas radicais.</p>
+</section>
+
+<section class="card" style="margin-top:20px">
+<h2>📊 Histórico dos últimos 30 dias</h2>
+<div id="history"></div>
+</section>
+</main>
+<footer>Seu objetivo é consistência, não perfeição. Se perder um dia, retome no próximo.</footer>
+
+<script>
+const KEY="plano30_v1";
+const todayKey=()=>new Date().toISOString().slice(0,10);
+const load=()=>JSON.parse(localStorage.getItem(KEY)||'{"start":null,"days":{}}');
+let state=load();
+
+function localDateKey(d=new Date()){
+  const x=new Date(d.getTime()-d.getTimezoneOffset()*60000); return x.toISOString().slice(0,10);
+}
+function diffDays(a,b){return Math.floor((new Date(b)-new Date(a))/86400000)}
+function ensureStart(){
+  if(!state.start) state.start=localDateKey();
+  localStorage.setItem(KEY,JSON.stringify(state));
+}
+ensureStart();
+
+function currentDay(){
+  const d=Math.max(1,Math.min(30,diffDays(new Date(state.start+"T00:00:00"),new Date(localDateKey()+"T00:00:00"))+1));
+  return d;
+}
+function dayData(n){
+  const ex=n<=7?`Caminhada leve/moderada por 20–30 min, 5 dias na semana. Comece devagar.`
+  :n<=14?`3x/semana: agachamento em cadeira 2×10, flexão na parede/bancada 2×10, remada com elástico/peso 2×10, elevação de quadril 2×10 + caminhada 20–30 min.`
+  :n<=21?`Treino de força 3x/semana, 3 séries dos exercícios acima, sem chegar à exaustão + caminhada.`
+  :`Objetivo da semana: cerca de 150 min de atividade moderada + força pelo menos 2x/semana, aumentando gradualmente.`;
+  return ex;
+}
+const items=[
+["wake","Acordei no horário e tomei água."],
+["light","Peguei 10–20 min de luz natural pela manhã."],
+["breakfast","Fiz um café da manhã com proteína e fibra."],
+["meals","Fiz refeições regulares e evitei bebidas açucaradas/excesso de doces."],
+["activity","Fiz a atividade física programada para hoje."],
+["active","Evitei longos períodos sentado e fiz pausas para caminhar."],
+["smoke","Registrei/segui a meta de redução do cigarro."],
+["sleep","Evitei café/energéticos no fim do dia e reduzi telas antes de dormir."],
+["bed","Fui para a cama no horário planejado."],
+["glucose","Se indicado pelo meu médico, fiz e registrei minhas glicemias."]
+];
+
+function selectedDay(){return +document.getElementById("daySelect").value}
+function render(){
+ const n=selectedDay(), key=localDateKey(new Date(new Date(state.start+"T00:00:00").getTime()+(n-1)*86400000));
+ const d=state.days[key]||{};
+ document.getElementById("dayTitle").textContent=`Dia ${n}`;
+ document.getElementById("dateText").textContent=new Date(key+"T12:00:00").toLocaleDateString("pt-BR",{weekday:"long",day:"2-digit",month:"long"});
+ document.getElementById("exerciseBox").innerHTML=`<div class="exercise">${dayData(n)}</div><p class="muted">Se houver tontura, fraqueza incomum, dor no peito ou mal-estar, pare o exercício e procure orientação. Se usa insulina ou medicamentos que podem causar hipoglicemia, siga as orientações do seu médico para exercício e glicemia.</p>`;
+ const box=document.getElementById("checklist"); box.innerHTML="";
+ items.forEach(([id,text],i)=>{
+   const div=document.createElement("div"); div.className="check"+(d[id]?" done":"");
+   div.innerHTML=`<input type="checkbox" id="c${i}" ${d[id]?"checked":""}><label for="c${i}">${text}</label>`;
+   div.querySelector("input").onchange=e=>toggle(key,id,e.target.checked);
+   box.appendChild(div);
+ });
+ updateProgress(d);
+ renderHistory();
+}
+function toggle(key,id,val){
+ state.days[key]=state.days[key]||{};
+ state.days[key][id]=val;
+ localStorage.setItem(KEY,JSON.stringify(state));
+ render();
+ const done=items.every(([x])=>state.days[key]?.[x]);
+ if(done && key===localDateKey()){
+   alert("🎉 Checklist concluído! Você fez tudo de hoje. O checklist ficará bloqueado até amanhã.");
+   document.querySelectorAll("#checklist input").forEach(x=>x.disabled=true);
+ }
+}
+function updateProgress(d){
+ const count=items.filter(([x])=>d[x]).length, pct=Math.round(count/items.length*100);
+ document.getElementById("bar").style.width=pct+"%";
+ document.getElementById("progressText").textContent=`${count}/${items.length} concluídos — ${pct}%`;
+}
+function renderHistory(){
+ const h=document.getElementById("history"); h.innerHTML="";
+ for(let i=1;i<=30;i++){
+  const key=localDateKey(new Date(new Date(state.start+"T00:00:00").getTime()+(i-1)*86400000));
+  const d=state.days[key]||{}, count=items.filter(([x])=>d[x]).length;
+  const el=document.createElement("div"); el.style.cssText="display:flex;justify-content:space-between;padding:9px;border-bottom:1px solid var(--line)";
+  el.innerHTML=`<span>Dia ${i}</span><span class="muted">${count}/${items.length} ${count===items.length?"✓ Concluído":"—"}</span>`;
+  h.appendChild(el);
+ }
+}
+const sel=document.getElementById("daySelect");
+for(let i=1;i<=30;i++){let o=document.createElement("option");o.value=i;o.textContent="Dia "+i;sel.appendChild(o)}
+sel.value=currentDay(); sel.onchange=render;
+document.getElementById("resetBtn").onclick=()=>{
+ const n=selectedDay();
+ if(n!==currentDay()){alert("Você só pode alterar o checklist do dia atual.");return}
+ const key=localDateKey(); delete state.days[key]; localStorage.setItem(KEY,JSON.stringify(state)); render();
+};
+render();
+</script>
+</body>
+</html>
