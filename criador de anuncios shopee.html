@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Anúncios Shopee para WhatsApp</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Color+Emoji&display=swap">
+<style>
+  :root{--bg:#f3efe8;--card:#fffdf9;--ink:#1d2b2a;--muted:#6b7775;--line:#ddd6c8;--accent:#ee4d2d;--wa:#128c4a;--bubble:#d9fdd3}
+  @media (prefers-color-scheme:dark){:root{--bg:#141a19;--card:#1c2423;--ink:#e9efed;--muted:#97a5a2;--line:#2f3b39;--bubble:#144d37}}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 "Trebuchet MS","Segoe UI",sans-serif}
+  main{max-width:960px;margin:0 auto;padding:24px 16px 48px}
+  h1{font-size:1.6rem;margin:0 0 4px}
+  .sub{color:var(--muted);margin:0 0 24px}
+  .grid{display:grid;gap:20px;grid-template-columns:1fr 1fr}
+  @media(max-width:760px){.grid{grid-template-columns:1fr}}
+  section{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:18px}
+  h2{font-size:1.05rem;margin:0 0 12px}
+  label{display:block;font-size:.85rem;color:var(--muted);margin:12px 0 4px}
+  input,textarea{width:100%;padding:10px;border:1px solid var(--line);border-radius:6px;background:transparent;color:var(--ink);font:inherit}
+  textarea{min-height:70px;resize:vertical}
+  input:focus,textarea:focus,button:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+  .row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .hint{font-size:.8rem;color:var(--muted);margin-top:4px}
+  #status{font-size:.85rem;margin-top:8px;min-height:1.3em;color:var(--muted)}
+  #status.ok{color:var(--wa)} #status.erro{color:#c0392b}
+  button{font:inherit;cursor:pointer;border-radius:6px;padding:9px 14px;border:1px solid var(--line);background:transparent;color:var(--ink)}
+  button.primary{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:700}
+  button.wa{background:var(--wa);border-color:var(--wa);color:#fff;font-weight:700}
+  button.danger{color:#c0392b;border-color:#c0392b}
+  .actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+  .chat{background:#e5ddd5;border-radius:8px;padding:14px;min-height:120px}
+  @media(prefers-color-scheme:dark){.chat{background:#0b141a}}
+  .bubble{background:var(--bubble);color:#111;border-radius:8px 8px 0 8px;padding:10px 12px;white-space:pre-wrap;word-break:break-word;font-size:.95rem;font-family:"Apple Color Emoji","Noto Color Emoji","Segoe UI",sans-serif}
+  @media(prefers-color-scheme:dark){.bubble{color:#e9edef}}
+  .empty{color:var(--muted);font-size:.9rem}
+  .saved{margin-top:20px}
+  .item{border-top:1px solid var(--line);padding:12px 0;display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+  .item:first-child{border-top:0}
+  .item b{display:block}
+  .item span{color:var(--muted);font-size:.85rem}
+  .item .actions{margin:0}
+  #login{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:16px}
+  #login[hidden],#app[hidden]{display:none}
+  #formLogin{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:24px;width:100%;max-width:340px}
+  #loginErro{color:#c0392b;font-size:.85rem;min-height:1.3em;margin-top:8px}
+  .toast{position:fixed;bottom:16px;left:50%;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:8px 16px;border-radius:6px;opacity:0;transition:opacity .2s;pointer-events:none}
+  .toast.on{opacity:1}
+</style>
+</head>
+<body>
+<div id="login">
+  <form id="formLogin" autocomplete="on">
+    <h1>Entrar</h1>
+    <p class="sub">Informe seus dados para abrir o gerador de anúncios.</p>
+    <label for="usuario">Usuário</label>
+    <input id="usuario" type="text" autocomplete="username" required>
+    <label for="senha">Senha</label>
+    <input id="senha" type="password" autocomplete="current-password" required>
+    <div id="loginErro" role="alert"></div>
+    <button class="primary" type="submit" style="width:100%;margin-top:14px">Entrar</button>
+  </form>
+</div>
+<div id="app" hidden>
+<main>
+  <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px">
+  <h1>Anúncios Shopee para WhatsApp</h1>
+  <button id="btnSair">Sair</button>
+  </div>
+  <p class="sub">Cole o link do produto: o nome e o preço são buscados automaticamente.</p>
+
+  <div class="grid">
+    <section>
+      <h2>Dados do produto</h2>
+
+      <label for="link">Link do produto (Shopee)</label>
+      <input id="link" type="url" placeholder="https://shopee.com.br/...">
+      <div class="actions" style="margin-top:8px"><button id="btnBuscar">Buscar nome e preço</button></div>
+      <div id="status"></div>
+
+      <label for="titulo">Nome do produto</label>
+      <input id="titulo" type="text" placeholder="Preenchido automaticamente">
+
+      <div class="row">
+        <div>
+          <label for="preco">Preço atual</label>
+          <input id="preco" type="text" inputmode="decimal" placeholder="49,90">
+        </div>
+        <div>
+          <label for="precoAntigo">Preço antigo (opcional)</label>
+          <input id="precoAntigo" type="text" inputmode="decimal" placeholder="79,90">
+        </div>
+      </div>
+
+      <label for="texto">Texto da página (opcional)</label>
+      <textarea id="texto" placeholder="Se o preço não for achado sozinho: abra o produto, copie a página inteira (Ctrl+A, Ctrl+C) e cole aqui."></textarea>
+
+      <label for="loja">Link da sua loja (opcional)</label>
+      <input id="loja" type="url" placeholder="https://shopee.com.br/sua_loja">
+      <div class="hint">Fica guardado neste navegador para os próximos anúncios.</div>
+
+      <div class="actions">
+        <button class="primary" id="btnSalvar">Salvar anúncio</button>
+        <button id="btnTrocar">Trocar texto da descrição</button>
+        <button id="btnLimpar">Limpar</button>
+      </div>
+    </section>
+
+    <section>
+      <h2>Prévia no WhatsApp</h2>
+      <div class="chat" id="chat"></div>
+      <div class="actions">
+        <button class="wa" id="btnShare">Compartilhar no WhatsApp</button>
+        <button id="btnCopiar">Copiar texto</button>
+      </div>
+    </section>
+  </div>
+
+  <section class="saved">
+    <h2>Anúncios salvos neste navegador</h2>
+    <div id="lista"></div>
+    <div class="actions" id="areaTudo" hidden>
+      <button class="danger" id="btnLimparTudo">Excluir todos</button>
+    </div>
+  </section>
+</main>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+const KEY = "anuncios_shopee_v1", KEY_LOJA = "anuncios_shopee_loja";
+const $ = id => document.getElementById(id);
+let editandoId = null, genIdx = 0;
+
+/* ---------- descrições genéricas ---------- */
+const GEN = [
+  ["✨ Qualidade e ótimo custo-benefício", "🚚 Enviamos para todo o Brasil", "⭐ Produto muito bem avaliado"],
+  ["😍 Você vai amar!", "📦 Estoque limitado, corre!", "🔒 Compra segura pela Shopee"],
+  ["💥 Preço que não dá pra perder", "✅ Praticidade para o seu dia a dia", "🎁 Perfeito para presentear"]
+];
+
+/* ---------- armazenamento local ---------- */
+function carregar(){ try { return JSON.parse(localStorage.getItem(KEY)) || []; } catch(e){ return []; } }
+function gravar(lista){
+  try { localStorage.setItem(KEY, JSON.stringify(lista)); return true; }
+  catch(e){ aviso("Não foi possível gravar neste navegador."); return false; }
+}
+
+/* ---------- utilidades ---------- */
+function aviso(msg){ const t = $("toast"); t.textContent = msg; t.classList.add("on"); setTimeout(()=>t.classList.remove("on"), 2200); }
+function status(msg, tipo){ const s = $("status"); s.textContent = msg; s.className = tipo || ""; }
+function paraBR(n){ return n.toFixed(2).replace(".", ","); }
+function formatarPreco(v){
+  v = (v||"").trim().replace(/^R\$\s*/i,"");
+  if(!v) return "";
+  const n = parseFloat(v.replace(/\./g,"").replace(",","."));
+  if(isNaN(n)) return "R$ " + v;
+  return n.toLocaleString("pt-BR",{style:"currency",currency:"BRL"});
+}
+function nomeDoLink(url){
+  try{
+    let slug = decodeURIComponent(new URL(url).pathname.split("/").filter(Boolean)[0] || "");
+    slug = slug.replace(/-i\.\d+\.\d+$/,"");
+    if(!slug || /^product$/i.test(slug) || /^\d+$/.test(slug)) return "";
+    return slug.replace(/-/g," ").replace(/\s+/g," ").trim();
+  }catch(e){ return ""; }
+}
+function idsDoLink(url){
+  const m = url.match(/-i\.(\d+)\.(\d+)/) || url.match(/\/product\/(\d+)\/(\d+)/);
+  return m ? {shop:m[1], item:m[2]} : null;
+}
+
+/* ---------- detecção de preço ---------- */
+function precosDoTexto(txt){
+  const vals = [...(txt||"").matchAll(/R\$\s*([\d.]+,\d{2})/g)]
+    .map(m => parseFloat(m[1].replace(/\./g,"").replace(",",".")))
+    .filter(n => n > 0);
+  if(!vals.length) return null;
+  const min = Math.min(...vals), max = Math.max(...vals);
+  return {preco:min, antigo:(max > min*1.05 && max < min*10) ? max : null};
+}
+async function buscarTexto(url, ms = 9000){
+  const proxies = [
+    u => "https://api.allorigins.win/raw?url=" + encodeURIComponent(u),
+    u => "https://corsproxy.io/?url=" + encodeURIComponent(u)
+  ];
+  for(const p of proxies){
+    const ctrl = new AbortController(), t = setTimeout(()=>ctrl.abort(), ms);
+    try{
+      const r = await fetch(p(url), {signal: ctrl.signal});
+      clearTimeout(t);
+      if(r.ok) return await r.text();
+    }catch(e){ clearTimeout(t); }
+  }
+  return null;
+}
+function lerHtml(html){
+  const doc = new DOMParser().parseFromString(html, "text/html");
+  const meta = p => (doc.querySelector(`meta[property="${p}"],meta[name="${p}"]`) || {}).content || "";
+  let titulo = (meta("og:title") || doc.title || "").replace(/\s*\|\s*Shopee.*$/i, "").trim();
+  let preco = null, antigo = null;
+  for(const s of doc.querySelectorAll('script[type="application/ld+json"]')){
+    try{
+      const arr = [].concat(JSON.parse(s.textContent));
+      for(const o of arr){
+        if(o.name && !titulo) titulo = o.name;
+        const of = [].concat(o.offers || []);
+        for(const f of of){
+          const v = parseFloat(f.price || f.lowPrice);
+          if(v > 0 && !preco) preco = v;
+        }
+      }
+    }catch(e){}
+  }
+  if(!preco){
+    const v = parseFloat(meta("product:price:amount"));
+    if(v > 0) preco = v;
+  }
+  if(!preco){
+    const r = precosDoTexto(meta("og:description"));
+    if(r){ preco = r.preco; antigo = r.antigo; }
+  }
+  return {titulo, preco, antigo};
+}
+function aplicar(d){
+  if(d.titulo) $("titulo").value = d.titulo;
+  if(d.preco){ $("preco").value = paraBR(d.preco); }
+  if(d.antigo && d.antigo > d.preco){ $("precoAntigo").value = paraBR(d.antigo); }
+  atualizarPrevia();
+}
+async function detectar(){
+  const link = $("link").value.trim();
+  if(!link){ status("Cole o link do produto primeiro.", "erro"); return; }
+  status("Buscando dados do produto...");
+  const dados = {titulo: nomeDoLink(link), preco: null, antigo: null};
+
+  const ids = idsDoLink(link);
+  if(ids){
+    const txt = await buscarTexto(`https://shopee.com.br/api/v4/item/get?itemid=${ids.item}&shopid=${ids.shop}`);
+    try{
+      const it = (JSON.parse(txt) || {}).data;
+      if(it && it.price){
+        dados.titulo = it.name || dados.titulo;
+        dados.preco = it.price / 100000;
+        if(it.price_before_discount > it.price) dados.antigo = it.price_before_discount / 100000;
+      }
+    }catch(e){}
+  }
+  if(!dados.preco){
+    const html = await buscarTexto(link);
+    if(html){
+      const h = lerHtml(html);
+      dados.titulo = h.titulo || dados.titulo;
+      dados.preco = h.preco; dados.antigo = h.antigo;
+    }
+  }
+  if(!dados.preco){
+    const r = precosDoTexto($("texto").value);
+    if(r){ dados.preco = r.preco; dados.antigo = r.antigo; }
+  }
+  aplicar(dados);
+  if(dados.preco) status("Preço encontrado. Confira os valores antes de compartilhar.", "ok");
+  else status("A Shopee bloqueou a leitura automática. Cole o texto da página na caixa abaixo (ou digite o preço) e clique em Buscar de novo.", "erro");
+}
+
+/* ---------- mensagem (formato WhatsApp) ---------- */
+function montarTexto(d){
+  if(!d.link) return "";
+  const L = ["🔥 *PROMOÇÃO IMPERDÍVEL!!* 🔥", ""];
+  if(d.titulo) L.push("🛍️ *" + d.titulo + "*", "");
+  GEN[d.gen % GEN.length].forEach(p => L.push(p));
+  L.push("");
+  const atual = formatarPreco(d.preco), antigo = formatarPreco(d.precoAntigo);
+  if(atual){
+    if(antigo) L.push("De ~" + antigo + "~");
+    L.push("💰 *Por apenas " + atual + "*");
+  }
+  L.push("🏆 *Melhor preço da Shopee!*", "");
+  L.push("🛒 *Compre aqui:* " + d.link);
+  if(d.loja) L.push("", "🏪 *Confira nossa loja:* " + d.loja);
+  return L.join("\n");
+}
+function lerForm(){
+  return {link: $("link").value.trim(), titulo: $("titulo").value.trim(), preco: $("preco").value,
+    precoAntigo: $("precoAntigo").value, texto: $("texto").value, loja: $("loja").value.trim(), gen: genIdx};
+}
+
+/* ---------- prévia ---------- */
+function esc(s){ return s.replace(/[&<>]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;"}[c])); }
+function atualizarPrevia(){
+  const texto = montarTexto(lerForm()), chat = $("chat");
+  if(!texto){ chat.innerHTML = '<div class="empty">Cole o link para ver a prévia.</div>'; return; }
+  chat.innerHTML = '<div class="bubble">' + esc(texto)
+    .replace(/\*([^*\n]+)\*/g,"<strong>$1</strong>")
+    .replace(/~([^~\n]+)~/g,"<s>$1</s>") + '</div>';
+}
+
+/* ---------- lista salva ---------- */
+function botao(txt, cls, fn){ const b = document.createElement("button"); b.textContent = txt; if(cls) b.className = cls; b.onclick = fn; return b; }
+function desenharLista(){
+  const lista = carregar(), el = $("lista");
+  el.innerHTML = ""; $("areaTudo").hidden = lista.length === 0;
+  if(!lista.length){ el.innerHTML = '<div class="empty">Nenhum anúncio salvo ainda.</div>'; return; }
+  lista.forEach(a => {
+    const div = document.createElement("div"); div.className = "item";
+    const info = document.createElement("div");
+    const b = document.createElement("b"); b.textContent = a.titulo || "(sem nome)";
+    const s = document.createElement("span"); s.textContent = formatarPreco(a.preco) || "sem preço";
+    info.append(b, s);
+    const acoes = document.createElement("div"); acoes.className = "actions";
+    acoes.append(
+      botao("Compartilhar","wa",()=>compartilhar(montarTexto(a))),
+      botao("Editar","",()=>editar(a.id)),
+      botao("Excluir","danger",()=>excluir(a.id))
+    );
+    div.append(info, acoes); el.append(div);
+  });
+}
+
+/* ---------- ações ---------- */
+function salvar(){
+  const d = lerForm();
+  if(!d.link){ aviso("Informe o link do produto."); return; }
+  const lista = carregar();
+  if(editandoId){
+    const i = lista.findIndex(x => x.id === editandoId);
+    if(i >= 0) lista[i] = {...d, id: editandoId};
+  } else lista.unshift({...d, id: Date.now().toString(36)});
+  if(gravar(lista)){ aviso("Anúncio salvo."); limpar(); desenharLista(); }
+}
+function editar(id){
+  const a = carregar().find(x => x.id === id); if(!a) return;
+  $("link").value = a.link; $("titulo").value = a.titulo; $("preco").value = a.preco;
+  $("precoAntigo").value = a.precoAntigo; $("texto").value = a.texto || ""; $("loja").value = a.loja || "";
+  genIdx = a.gen || 0; editandoId = id; $("btnSalvar").textContent = "Atualizar anúncio";
+  atualizarPrevia(); window.scrollTo({top:0,behavior:"smooth"});
+}
+function excluir(id){
+  if(!confirm("Excluir este anúncio da memória do navegador?")) return;
+  gravar(carregar().filter(x => x.id !== id));
+  if(editandoId === id) limpar();
+  desenharLista(); aviso("Anúncio excluído.");
+}
+function excluirTudo(){
+  if(!confirm("Excluir TODOS os anúncios salvos?")) return;
+  try{ localStorage.removeItem(KEY); }catch(e){}
+  limpar(); desenharLista(); aviso("Memória limpa.");
+}
+function limpar(){
+  ["link","titulo","preco","precoAntigo","texto"].forEach(i => $(i).value = "");
+  editandoId = null; genIdx = 0; status(""); $("btnSalvar").textContent = "Salvar anúncio"; atualizarPrevia();
+}
+function compartilhar(texto){
+  if(!texto){ aviso("Cole o link primeiro."); return; }
+  window.open("https://wa.me/?text=" + encodeURIComponent(texto), "_blank");
+}
+async function copiar(){
+  const t = montarTexto(lerForm());
+  if(!t){ aviso("Nada para copiar."); return; }
+  try{ await navigator.clipboard.writeText(t); aviso("Texto copiado."); } catch(e){ aviso("Não foi possível copiar."); }
+}
+
+/* ---------- eventos ---------- */
+let timer;
+$("link").addEventListener("input", () => {
+  const l = $("link").value.trim();
+  if(!$("titulo").value.trim()){ const n = nomeDoLink(l); if(n) $("titulo").value = n; }
+  atualizarPrevia();
+  clearTimeout(timer);
+  if(/^https?:\/\/\S+\.\S+/.test(l)) timer = setTimeout(detectar, 700);
+});
+["titulo","preco","precoAntigo"].forEach(i => $(i).addEventListener("input", atualizarPrevia));
+$("texto").addEventListener("input", () => {
+  if(!$("preco").value.trim()){
+    const r = precosDoTexto($("texto").value);
+    if(r){ aplicar({preco:r.preco, antigo:r.antigo}); status("Preço detectado no texto colado. Confira os valores.", "ok"); }
+  }
+});
+$("loja").addEventListener("input", () => { try{ localStorage.setItem(KEY_LOJA, $("loja").value.trim()); }catch(e){} atualizarPrevia(); });
+$("btnBuscar").onclick = detectar;
+$("btnSalvar").onclick = salvar;
+$("btnLimpar").onclick = limpar;
+$("btnTrocar").onclick = () => { genIdx = (genIdx + 1) % GEN.length; atualizarPrevia(); };
+$("btnShare").onclick = () => compartilhar(montarTexto(lerForm()));
+$("btnCopiar").onclick = copiar;
+$("btnLimparTudo").onclick = excluirTudo;
+
+try{ $("loja").value = localStorage.getItem(KEY_LOJA) || ""; }catch(e){}
+atualizarPrevia(); desenharLista();
+
+/* ---------- login ---------- */
+const HASH_OK = "3e5b3a40fdfff3d13b3e32bb6746016be9407c29d0ec221dc98aca87ef184543";
+async function sha256(txt){
+  const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(txt));
+  return [...new Uint8Array(buf)].map(b => b.toString(16).padStart(2,"0")).join("");
+}
+function mostrarApp(sim){
+  $("login").hidden = sim; $("app").hidden = !sim;
+  if(!sim){ $("senha").value = ""; $("usuario").focus(); }
+}
+$("formLogin").addEventListener("submit", async e => {
+  e.preventDefault();
+  try{
+    const h = await sha256($("usuario").value.trim().toLowerCase() + ":" + $("senha").value);
+    if(h === HASH_OK){
+      try{ sessionStorage.setItem("shopee_auth", "1"); }catch(_){}
+      $("loginErro").textContent = ""; mostrarApp(true);
+    } else {
+      $("loginErro").textContent = "Usuário ou senha incorretos.";
+      $("senha").value = "";
+    }
+  }catch(err){ $("loginErro").textContent = "Este navegador não permite validar o login. Abra o arquivo no Chrome ou Edge."; }
+});
+$("btnSair").onclick = () => { try{ sessionStorage.removeItem("shopee_auth"); }catch(_){} mostrarApp(false); };
+let logado = false; try{ logado = sessionStorage.getItem("shopee_auth") === "1"; }catch(_){}
+mostrarApp(logado);
+</script>
+</body>
+</html>
